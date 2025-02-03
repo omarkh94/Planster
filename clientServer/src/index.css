@@ -1,0 +1,19 @@
+@tailwind utilities;
+@tailwind base;
+@tailwind components;
+@config "../tailwind.config.js";
+@layer base {
+  :root {
+    --radius: 0.5rem;
+  }
+}
+
+@layer utilities {
+  .scrollbar-hide::-webkit-scrollbar {
+    display: none;
+  }
+
+  .scroll-smooth {
+    scroll-behavior: smooth;
+  }
+}
