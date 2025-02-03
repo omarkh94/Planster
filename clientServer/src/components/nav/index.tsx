@@ -11,8 +11,10 @@ import {
   Users,
 } from "lucide-react";
 import React from "react";
+import { useLocation } from "react-router-dom";
 
 const NavLayout = ({ children }: { children: React.ReactNode }) => {
+  const location = useLocation();
   const navItems = [
     { icon: Home, label: "Dashboard", href: "/" },
     { icon: FolderKanban, label: "Projects", href: "/projects" },
@@ -141,7 +143,13 @@ const NavLayout = ({ children }: { children: React.ReactNode }) => {
           </div>
         </div>
       </header>
-      <main className="flex-1 bg-gray-300 w-full p-4">{children}</main>
+      {location.pathname === "/" ? (
+        <main className="flex-1 bg-heroBg  bg-cover bg-center flex flex-col items-center justify-center relative font-caveat ">
+          {children}
+        </main>
+      ) : (
+        <main className="flex-1 bg-gray-300 w-full p-4 ">{children}</main>
+      )}
     </div>
   );
 };
