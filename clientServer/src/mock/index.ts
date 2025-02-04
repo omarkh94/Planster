@@ -6,7 +6,8 @@ import {
   CardType, 
   CardListType, 
   ProjectType, 
-  MessageType, 
+  MessageType,
+  Country, 
 } from "../types";
 
 export const users: UserType[] = [
@@ -386,3 +387,10 @@ export const mockData = {
   projects,
   messages,
 };
+
+export const countries: Country[] = [
+  { code: 'JO', dialCode: '+962', name: 'Jordan' },
+  { code: 'CA', dialCode: '+1', name: 'Canada' },
+  { code: 'GB', dialCode: '+44', name: 'United Kingdom' },
+  { code: 'IN', dialCode: '+91', name: 'India' },
+];

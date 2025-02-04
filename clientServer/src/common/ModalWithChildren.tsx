@@ -8,7 +8,7 @@ const ModalWithChildren = ({
 }: {
   onClose: () => void;
   children: React.ReactNode;
-  size: "small" | "medium" | "large";
+  size: "small" | "medium" | "large" | 'extra';
 }) => {
   const handleModalClick = (e: React.MouseEvent<HTMLDivElement>) => {
     e.stopPropagation();
@@ -32,7 +32,7 @@ const ModalWithChildren = ({
         <motion.div
           className={`relative bg-white dark:bg-secondary  shadow-lg w-full   mx-auto scrollbar-hide overflow-scroll scroll-smooth ${
             size === "large"
-              ? "max-w-[85vw]  max-h-[85vh] min-h-[85vh]"
+              ? "max-w-[60vw]  max-h-[85vh] min-h-[60vh]"
               : size === "medium"
               ? " sm:max-w-[40vw]  max-h-[50vh] min-h-[80vh]"
               : "max-w-[30vw]  max-h-[30vh] min-h-[30vh]"

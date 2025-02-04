@@ -1,3 +1,5 @@
+import { FieldError } from "react-hook-form";
+
 export interface BaseEntity {
   id: string;
   isDeleted?: boolean;
@@ -98,3 +100,28 @@ export type Card = {
   id: string;
   title: string;
 };
+export interface FormItemProps {
+  name: string;
+  label?: string;
+  type?: 'text' | 'password' | 'email' | 'checkbox' | 'select' | 'textarea' | 'radio';
+  placeholder?: string;
+  options?: { value: string; label: string }[]; // For select type
+  className?: string;
+  labelClass?: string;
+  inputClass?: string;
+  errorClass?: string;
+  error?: FieldError;
+  showPasswordButton?: boolean;
+  required?: boolean;
+  rows?: number;
+  termsAndConditions?: ReactNode;
+  value?: string;
+  withForgetPasswordLink?: boolean;
+  onForgetPasswordClick?: () => void;
+}
+
+export interface Country {
+  code: string;
+  dialCode: string;
+  name: string;
+}

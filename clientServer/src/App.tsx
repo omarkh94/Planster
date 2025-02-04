@@ -11,10 +11,12 @@ import Projects from "./pages/Projects";
 import Registration from "./pages/Register";
 import TeamTable from "./pages/TeamTable";
 import { useUser } from "./store/UserStore";
+import { useAuthStore } from "./store/useAuthStore";
+import RegisterModal from "./components/Auth/RegisterModal";
 
 const App = () => {
   const { dialogOpen } = useUser();
-
+  const {registerModalOpen}= useAuthStore()
   return (
     <KanbanProvider>
       <NavLayout>
@@ -42,6 +44,8 @@ const App = () => {
           />
         </Routes>
         {dialogOpen && <CreateProject />}
+        {registerModalOpen && <RegisterModal/>}
+
       </NavLayout>
     </KanbanProvider>
   );

@@ -1,4 +1,5 @@
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
+import { useAuthStore } from "@/store/useAuthStore";
 import {
   Bell,
   FolderKanban,
@@ -21,6 +22,7 @@ const NavLayout = ({ children }: { children: React.ReactNode }) => {
     { icon: Users, label: "Team", href: "/team" },
     { icon: Settings, label: "Settings", href: "/settings" },
   ];
+  const { setRegisterModalOpen } = useAuthStore();
 
   const MobileMenu = () => (
     <Sheet>
@@ -127,7 +129,7 @@ const NavLayout = ({ children }: { children: React.ReactNode }) => {
                 </button>
                 <button
                   className="flex flex-row items-center gap-2 bg-secondary rounded-sm py-1 px-3 text-primary font-semibold"
-                  onClick={() => console.log("Open signup modal")}
+                  onClick={() => setRegisterModalOpen(true)}
                 >
                   <UserPlus
                     className="h-4 w-4 mr-2 text-primary"
