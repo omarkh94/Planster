@@ -1,13 +1,38 @@
 import ModalWithChildren from "@/common/ModalWithChildren";
 import { useState } from "react";
+import axios from "axios";
 const InviteTeamMember = ({
   setTeamModalOpen,
 }: {
   setTeamModalOpen: (value: boolean) => void;
 }) => {
   const [email, setEmail] = useState("");
-  const handleInvite = () => {
-    // TODO: Implement invite team member
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+
+  const validateEmail = (email: string) => {
+    const re = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+    return re.test(email);
+  };
+  const handleInvite = async () => {
+    if (!email || !validateEmail(email)) {
+      setError("Please enter a valid email address.");
+      return;
+    }
+
+    setLoading(true);
+    setError(null); 
+
+    try {
+      await axios.post("/api/invite", { email });
+      setTeamModalOpen(false); 
+    } catch (err) {
+      console.log('err :>> ', err);
+      setError("Failed to send invite. Please try again.");
+    } finally {
+      setLoading(false);
+    }
   };
   return (
     <ModalWithChildren onClose={() => setTeamModalOpen(false)} size="small">
@@ -24,13 +49,15 @@ const InviteTeamMember = ({
             onChange={(e) => setEmail(e.target.value)}
           />
         </div>
+        {error && <p className="text-red-500 text-sm">{error}</p>}
         <button
           className="bg-primary border border-border px-6 py-2 text-white font-semibold"
           type="submit"
           onClick={handleInvite}
+          disabled={loading}
           autoFocus
         >
-          Invite
+         {loading ? "Sending..." : "Invite"}
         </button>{" "}
       </div>
     </ModalWithChildren>

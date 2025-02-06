@@ -1,14 +1,13 @@
 const express = require('express');
-const { sendMessage, getAllMessages, getMessagesByRoom } = require('../Controllers/Messages');
-const MessageRouter = express.Router();
+const messageRouter = express.Router()
 
 
-MessageRouter.post('/send', sendMessage);
+const {getAllMessages, saveMessage, createMessage} = require('../Controllers/Messages');
+const authentication = require('../middleWares/authentication');
+
+messageRouter.get('/',authentication,getAllMessages)
+messageRouter.post('/save',authentication,saveMessage)
+messageRouter.post('/create',authentication,createMessage)
 
 
-MessageRouter.get('/:teamId/messages', getAllMessages);
-
-
-MessageRouter.get('/room/:roomId/messages', getMessagesByRoom);
-
-module.exports = MessageRouter;
+module.exports = messageRouter

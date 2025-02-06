@@ -1,18 +1,18 @@
-const CardModel = require("../models/CardSchema")
+const TicketModel = require("../models/TicketSchema")
 
 
 
 
 
-const getAllCards = async function (req, res) {
+const getAllTickets = async function (req, res) {
     try {
         res.status(200).json({ success: true });
-        // const cards = await CardModel.find({ isDeleted: false }).populate('comment').exec()
-        // res.status(200).json({
-        //     success: true,
-        //     message: 'Cards data',
-        //     data: cards
-        // })
+        const Tickets = await TicketModel.find({ isDeleted: false }).populate('comment').exec()
+        res.status(200).json({
+            success: true,
+            message: 'Tickets data',
+            data: Tickets
+        })
     } catch (error) {
         res.status(400).json({
             success: false,
@@ -23,22 +23,22 @@ const getAllCards = async function (req, res) {
 
 }
 
-const AddNewCard = async (req, res) => {
+const AddNewTicket = async (req, res) => {
     try {
         const {userId}=req.token ;
         const { title, description, assignee } = req.body
-        const Card = new CardModel({
+        const Ticket = new TicketModel({
             title,
             description,
             author:userId,
         
             
         })
-        const result = await Card.save()
+        const result = await Ticket.save()
 
         res.status(201).json({
             success: true,
-            message: 'Card Added successfully',
+            message: 'Ticket Added successfully',
             data: result
         })
     } catch (error) {
@@ -50,14 +50,14 @@ const AddNewCard = async (req, res) => {
 }
 
 
-const getCardsByListId = async (req, res) => {
+const getTicketsByListId = async (req, res) => {
     try {
         const { id } = req.params;
-        const Card = await CardModel.findOne({ list: id }).exec();
+        const Ticket = await TicketModel.findOne({ list: id }).exec();
         res.status(200).json({
             success: true,
-            message: 'Card founded successfully',
-            data: Card
+            message: 'Ticket founded successfully',
+            data: Ticket
         })
 
     } catch (error) {
@@ -69,13 +69,13 @@ const getCardsByListId = async (req, res) => {
 }
 
 
-const modifyExistingCard = async (req, res) => {
+const modifyExistingTicket = async (req, res) => {
     try {
         const { id } = req.params;
         const {updatedBy} = req.token.userId
         const { title, description, assignee } = req.body;
 
-        const Card = await CardModel.findOneAndUpdate(
+        const Ticket = await TicketModel.findOneAndUpdate(
             { _id: id },
             {
                 title:title,
@@ -87,8 +87,8 @@ const modifyExistingCard = async (req, res) => {
         ).exec();
         res.status(200).json({
             success: true,
-            message: 'Card Updated successfully',
-            data: Card
+            message: 'Ticket Updated successfully',
+            data: Ticket
         })
 
     } catch (error) {
@@ -98,11 +98,11 @@ const modifyExistingCard = async (req, res) => {
         })
     }
 }
-const deleteCardFromList = async (req, res) => {
+const deleteTicketFromList = async (req, res) => {
     try {
         const { id } = req.params;
 
-        const Card = await CardModel.findOneAndUpdate(
+        const Ticket = await TicketModel.findOneAndUpdate(
             { _id: id },
             {
                 isDeleted: true,
@@ -111,8 +111,8 @@ const deleteCardFromList = async (req, res) => {
         ).exec();
         res.status(200).json({
             success: true,
-            message: 'Card deleted successfully',
-            data: Card
+            message: 'Ticket deleted successfully',
+            data: Ticket
         })
 
     } catch (error) {
@@ -125,4 +125,4 @@ const deleteCardFromList = async (req, res) => {
 
 
 
-module.exports = { getAllCards,getCardsByListId,AddNewCard,modifyExistingCard,deleteCardFromList }
+module.exports = { getAllTickets,getTicketsByListId,AddNewTicket,modifyExistingTicket,deleteTicketFromList }

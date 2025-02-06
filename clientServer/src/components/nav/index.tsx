@@ -12,6 +12,7 @@ import {
   Users,
 } from "lucide-react";
 import React from "react";
+import { Link } from "react-router-dom";
 import { useLocation } from "react-router-dom";
 
 const NavLayout = ({ children }: { children: React.ReactNode }) => {
@@ -111,9 +112,9 @@ const NavLayout = ({ children }: { children: React.ReactNode }) => {
                 <Plus className="h-4 w-4 text-primary " strokeWidth={3} />
               </button>
 
-              <button className="flex bg-secondary rounded-sm p-2">
+              <Link to={'/conversation'} className="flex bg-secondary rounded-sm p-2">
                 <Bell className="h-4 w-4 text-primary" strokeWidth={3} />
-              </button>
+              </Link>
 
               {/* Auth buttons - Desktop */}
               <div className="hidden lg:flex items-center gap-2">
@@ -128,7 +129,7 @@ const NavLayout = ({ children }: { children: React.ReactNode }) => {
                   Login
                 </button>
                 <button
-                  className="flex flex-row items-center gap-2 bg-secondary rounded-sm py-1 px-3 text-primary font-semibold"
+                  className="flex flex-row items-center gap-2  bg-secondary rounded-sm py-1 px-3  text-primary font-semibold "
                   onClick={() => setRegisterModalOpen(true)}
                 >
                   <UserPlus
@@ -149,8 +150,10 @@ const NavLayout = ({ children }: { children: React.ReactNode }) => {
         <main className="flex-1 bg-heroBg  bg-cover bg-center flex flex-col items-center justify-center relative font-caveat ">
           {children}
         </main>
-      ) : (
-        <main className="flex-1 bg-gray-300 w-full p-4 ">{children}</main>
+      ) :location.pathname === '/conversation'? (
+        <main className="flex-1 bg-secondary w-full h-full flex flex-col  items-center justify-start ">{children}</main>
+      ): (
+        <main className="flex-1 bg-gray-300 w-full h-full p-4 ">{children}</main>
       )}
     </div>
   );

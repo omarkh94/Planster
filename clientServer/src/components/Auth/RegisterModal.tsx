@@ -18,7 +18,8 @@ const RegisterModal = () => {
     },
   });
   const { setRegisterModalOpen } = useAuthStore();
-  const onSubmit = (values: RegisterSchema) => {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const onSubmit:any = (values: RegisterSchema) => {
     console.log("values :>> ", values);
   };
   console.log("methods.register() :>> ", methods.formState.errors);
@@ -40,7 +41,7 @@ const RegisterModal = () => {
       size="large"
     >
       <div className="    z-20 flex flex-col gap-4 items-center justify-center w-full font-glory ">
-        <div className="flex flex-col gap-4 items-center justify-center p-6 md:p-8 w-full">
+        <div className="flex flex-col gap-4 items-center justify-center p-6 md:p-8 w-full ">
           <h1 className="text-3xl font-bold">Register</h1>
           <FormProvider {...methods}>
             <form

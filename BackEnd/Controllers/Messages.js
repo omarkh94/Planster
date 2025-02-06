@@ -1,101 +1,100 @@
-const Message = require('../models/MessageSchema'); 
-const ChatRoom = require('../models/ChatRoomSchema');
-const User = require('../models/UserSchema');
-const Team = require('../models/TeamSchema');
-const sendMessage = async (req, res) => {
-    const { content, userId, mentions = [] } = req.body;
+const mongoose = require('mongoose'); // Import mongoose here
+const Message = require("../models/MessageSchema"); // Assuming your Message model is defined here
 
-    // Assuming roomId is the same as teamId
-    const teamId = req.body.teamId;  // Get teamId from the body
-    const roomId = teamId;  // Set roomId equal to teamId
+const saveMessage = async (req, res) => {
+  const { senderId, roomId, content, mentions, replyTo } = req.body;
+  
+  console.log("Received senderId:", senderId);
+  console.log("Decoded Token:", req.token);
+  
+  // Further checks or fetching data based on senderId, roomId, etc.
+  
+  if (!senderId || !isValidSender(senderId)) {
+      console.log("Invalid senderId:", senderId);
+      return res.status(400).json({ error: "Invalid senderId" });
+  }
+  try {
+    // Debugging: Log the input data to see if it's coming in correctly
+    console.log("saveMessage called with:", {
+      content,
+      senderId,
+      roomId,
+      mentions,
+      replyTo
+    });
 
-    console.log("🔍 Received Data:", { roomId, content, userId, mentions });
-
-    try {
-        // Check if the chat room exists
-        let chatRoom = await ChatRoom.findOne({ roomId });
-
-        // If chat room doesn't exist, create it
-        if (!chatRoom) {
-            console.log("❌ Chat room not found, creating new one...");
-
-            // Convert userId to ObjectId (use 'new')
-            const userObjectId = new mongoose.Types.ObjectId(userId);  // Corrected here
-            
-            const users = [userObjectId];  // Starting with the sender as the first user
-
-            // Create a new chat room with roomId as teamId
-            chatRoom = new ChatRoom({
-                roomId,  // Set roomId equal to teamId
-                users,   // Add users as ObjectIds
-                messages: []  // Initially no messages
-            });
-
-            await chatRoom.save();
-            console.log("✅ Chat room created:", chatRoom);
-        }
-
-        // Find the sender (user)
-        const sender = await User.findById(userId);
-        if (!sender) {
-            console.log("❌ User not found:", userId);
-            return res.status(404).json({ success: false, message: "User not found" });
-        }
-
-        // Create a new message
-        const message = new Message({
-            content,
-            sender: sender._id,
-            teamId,  // Link the message to the team (same as roomId)
-            mentions,
-        });
-
-        console.log("📝 Saving Message:", message);
-        await message.save();
-
-        // Add the message to the chat room's messages array
-        chatRoom.messages.push(message._id);
-        await chatRoom.save();
-
-        console.log("✅ Message Saved & Linked to ChatRoom:", message);
-        res.status(200).json({ success: true, message });
-    } catch (error) {
-        console.error("🔥 Error sending message:", error);
-        res.status(500).json({ success: false, message: "Error sending message", error: error.message });
+    // Check if senderId and roomId are valid ObjectIds
+    if (!mongoose.Types.ObjectId.isValid(senderId)) {
+      console.error("Invalid senderId:", senderId);
+      throw new Error("Invalid senderId");
     }
+    if (!mongoose.Types.ObjectId.isValid(roomId)) {
+      console.error("Invalid roomId:", roomId);
+      throw new Error("Invalid roomId");
+    }
+
+    // Prepare the message object
+    const newMessage = new Message({
+      content,
+      sender: mongoose.Types.ObjectId(senderId),  // Convert senderId to ObjectId
+      chatRoomId: mongoose.Types.ObjectId(roomId),  // Convert roomId to ObjectId
+      mentions: mentions.map((mention) => mongoose.Types.ObjectId(mention)), // Convert mentions to ObjectIds
+      replyTo: replyTo ? mongoose.Types.ObjectId(replyTo) : null, // Convert replyTo to ObjectId if available
+    });
+
+    console.log("Message object prepared:", newMessage);  // Log the new message object to check
+
+    // Save to the database
+    const savedMessage = await newMessage.save();
+    console.log("Message saved successfully:", savedMessage);  // Log the saved message to check
+
+    return savedMessage;
+  } catch (error) {
+    // Log the error to help debug
+    console.error("Error in saveMessage:", error);
+    throw new Error("Error saving message");
+  }
 };
 
+const createMessage = async (req, res) => {
+  try {
+    const { content, roomId, mentions, replyTo } = req.body;
+    const senderId = req.token.userId;
 
-// Get all messages from a chat room
+    // Debugging: Log the incoming request data
+    console.log("createMessage called with:", { content, roomId, mentions, replyTo, senderId });
+
+    // Call the saveMessage function
+    const message = await saveMessage(content, senderId, roomId, mentions, replyTo);
+
+    res.status(200).json({
+      success: true,
+      message: "Message created successfully",
+      data: message,
+    });
+  } catch (error) {
+    console.error("Error creating message:", error);
+    res.status(500).json({
+      success: false,
+      message: "Error saving message",
+      error: error.message,
+    });
+  }
+};
+
 const getAllMessages = async (req, res) => {
-  const { teamId } = req.params;
-
+  const projectId = req.token.ProjectId;
   try {
-    const messages = await Message.find({ teamId })
-      .populate('sender', 'name')  
-      .populate('mentions', 'name')  
-      .populate('replies.sender', 'name')  
-      .sort({ createdAt: 1 });  
-
-    res.status(200).json({ success: true, messages });
+    // Use the correct Message model here
+    const result = await Message.find({ chatRoomId: projectId }).limit(100);
+    res
+      .status(200)
+      .json({ success: true, message: "Here are all messages", result });
   } catch (error) {
-    console.error(error);
-    res.status(500).json({ success: false, message: 'Error retrieving messages', error: error.message });
+    res
+      .status(500)
+      .json({ success: false, message: "server error", error: error.message });
   }
 };
 
-const getMessagesByRoom = async (req, res) => {
-  const { roomId } = req.params;
-
-  try {
-    const chatRoom = await ChatRoom.findOne({ roomId }).populate('messages');
-    if (!chatRoom) return res.status(404).json({ success: false, message: 'Chat room not found' });
-
-    res.status(200).json({ success: true, messages: chatRoom.messages });
-  } catch (error) {
-    console.error(error);
-    res.status(500).json({ success: false, message: 'Error retrieving messages', error: error.message });
-  }
-};
-
-module.exports = { sendMessage, getAllMessages, getMessagesByRoom };
+module.exports = { getAllMessages, saveMessage, createMessage };

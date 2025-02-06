@@ -17,3 +17,22 @@
     scroll-behavior: smooth;
   }
 }
+
+/* Custom scrollbar styles */
+.scrollStyle::-webkit-scrollbar {
+  width: 8px; /* Adjust scrollbar width */
+}
+
+.scrollStyle::-webkit-scrollbar-track {
+  background: #d1d5db ; /* Light background */
+  border-radius: 4px;
+}
+
+.scrollStyle::-webkit-scrollbar-thumb {
+  background: #008080; /* Darker thumb */
+  border-radius: 4px;
+}
+
+.scrollStyle::-webkit-scrollbar-thumb:hover {
+  background: #555; /* Darker on hover */
+}

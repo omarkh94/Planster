@@ -1,6 +1,6 @@
 const mongoose = require('mongoose');
 
-const TeamRoleSchema = new mongoose.Schema({
+const RoleSchema = new mongoose.Schema({
   
   role: {
     type: String,
@@ -14,4 +14,4 @@ const TeamRoleSchema = new mongoose.Schema({
   isDeleted: { type: Boolean, default: false },
 }, { timestamps: true });
 
-module.exports = mongoose.model('TeamRole', TeamRoleSchema);
+module.exports = mongoose.model('Role', RoleSchema);

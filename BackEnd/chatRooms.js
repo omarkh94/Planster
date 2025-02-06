@@ -52,7 +52,7 @@ export const initChatRoom = (socket, io, rooms) => {
 
     
 
-    socket.on('SEND_MESSAGE', ({ roomId, message, userId, mentions = [], replyTo = null }) => {
+    socket.on('SEND_MESSAGE', ({ roomId, message, userId,from, mentions = [], replyTo = null }) => {
         if (!rooms[roomId]) {
             rooms[roomId] = { messages: [] };
         }
@@ -60,7 +60,7 @@ export const initChatRoom = (socket, io, rooms) => {
         const newMessage = {
             id: `${Date.now()}`,  
             content: message,
-            sender: { id: userId, name: `User ${userId}` },  
+            sender: { id: userId, name: from },  
             teamId: roomId,
             mentions,  
             replies: replyTo ? [{ reply: message, sender: userId, createdAt: new Date().toISOString() }] : [],

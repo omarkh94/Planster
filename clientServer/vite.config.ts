@@ -6,6 +6,13 @@ import path from "path"
 export default defineConfig({
   server: {
     host: true,
+    proxy: {
+      "/api": {
+        target: "http://localhost:5000",
+        changeOrigin: true,
+        secure: false,  // Set to false if using self-signed SSL certificates
+      },
+    },
   },
   plugins: [react()],
   resolve: {

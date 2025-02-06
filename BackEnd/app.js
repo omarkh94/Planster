@@ -10,6 +10,7 @@ const { ProjectRouter } = require('./routes/ProjectRouters');
 const TeamRouter = require('./routes/TeamRouter');
 const { initChatRoom } = require('./chatRooms');
 const MessageRouter = require('./routes/MessagesRouter');
+const InviteRouter = require('./routes/InviteRouter');
 const app = express()
 app.use(cors())
 app.use(express.json())
@@ -18,7 +19,9 @@ require('./models/db')
 app.use('/users', UserRouter)
 app.use('/team', TeamRouter)
 app.use('/project', ProjectRouter)
-app.use("/teamRoom", MessageRouter)
+app.use("/messages", MessageRouter)
+console.log("InviteRouter loaded");
+app.use("/api/invite", InviteRouter);
 
 const server = app.listen(PORT, () => console.log(`Example app listening on PORT ${PORT}!`))
 
@@ -41,3 +44,6 @@ io.on("connection", (socket) => {
         console.error("Error in chat room initialization:", error);
     }
 });
+
+
+

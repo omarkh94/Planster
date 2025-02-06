@@ -1,24 +1,24 @@
 
 const CommentsModel = require('../models/CommentsSchema');
-const CardModel = require('../models/CardSchema');
+const TicketModel = require('../models/TicketSchema');
 
-const getCommentsByCard = async function (req, res) {
+const getCommentsByTicket = async function (req, res) {
     try {
-        const cardID = req.params.cardID;
+        const TicketID = req.params.TicketID;
 
-        const card = await CardModel.findOne({ _id: cardID }).populate('comments').exec();
+        const Ticket = await TicketModel.findOne({ _id: TicketID }).populate('comments').exec();
 
-        if (!card) {
+        if (!Ticket) {
             return res.status(404).json({
                 success: false,
-                message: 'Card not found',
+                message: 'Ticket not found',
             });
         }
 
         res.status(200).json({
             success: true,
             message: 'Comments data',
-            data: card.comments,
+            data: Ticket.comments,
         });
     } catch (error) {
         res.status(400).json({
@@ -35,22 +35,23 @@ const AddNewComment = async (req, res) => {
     try {
 
         const { userId } = req.token;
-        const { description, cardID } = req.body;
+        const { description, TicketID } = req.body;
         const comment = new CommentsModel({
             description,
             commenter: userId,
         })
         await comment.save()
-        const result = await CardModel.findByIdAndUpdate(cardID, {
+
+        const result = await TicketModel.findByIdAndUpdate(TicketID, {
             $push: {
                 comments: comment._id
             }
-        }, { new: true })
+        }, { new: true }).populate("comments");
 
         res.status(201).json({
             success: true,
-            message: 'Comment created successfully',
-            data: result
+            message: 'Comment added successfully',
+            data: updatedTicket
         })
     } catch (error) {
         res.status(500).json({
@@ -64,7 +65,7 @@ const AddNewComment = async (req, res) => {
 const getCommentByCommenter = async (req, res) => {
     try {
         const { userId } = req.token;
-        const Comments = await CommentsModel.findOne({ commenter: userId }).exec();
+        const Comments = await CommentsModel.find({ commenter: userId }).exec();
         if (!Comments) {
             return res.status(404).json({
                 success: false,
@@ -87,8 +88,8 @@ const getCommentByCommenter = async (req, res) => {
 
 
 const modifyCommentByCommenter = async (req, res) => {
-   try {
-        const {commentId} = req.params;
+    try {
+        const { commentId } = req.params;
         console.log('commentId :>> ', commentId);
         const { description } = req.body;
         console.log('description :>> ', description);
@@ -129,7 +130,7 @@ const modifyCommentByCommenter = async (req, res) => {
 const deleteCommentByCommenter = async (req, res) => {
     try {
         const { commentId } = req.params;
-        
+
 
         const comment = await CommentsModel.findById(commentId).exec();
 
@@ -164,4 +165,4 @@ const deleteCommentByCommenter = async (req, res) => {
 };
 
 
-module.exports = { getCommentsByCard, AddNewComment, getCommentByCommenter, modifyCommentByCommenter, deleteCommentByCommenter };
+module.exports = { getCommentsByTicket, AddNewComment, getCommentByCommenter, modifyCommentByCommenter, deleteCommentByCommenter };

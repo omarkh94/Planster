@@ -13,6 +13,7 @@ import TeamTable from "./pages/TeamTable";
 import { useUser } from "./store/UserStore";
 import { useAuthStore } from "./store/useAuthStore";
 import RegisterModal from "./components/Auth/RegisterModal";
+import ChatRoom from "./pages/ChatRoom";
 
 const App = () => {
   const { dialogOpen } = useUser();
@@ -26,7 +27,7 @@ const App = () => {
       <SideNaveBtn /> */}
 
         <Routes>
-          <Route path="/" element={<HomePage />} />
+          <Route path="/" element={<HomePage/>} />
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Registration />} />
           <Route path="/projects" element={<Projects />} />
@@ -34,6 +35,7 @@ const App = () => {
           <Route path="/team/:teamId" element={<TeamTable />} />
           <Route path="/info" element={<ContactSupport />} />
           <Route path="/Profile/:id" element={<Profile />} />
+          <Route path="/conversation" element={<ChatRoom />}/>
           <Route
             path="*"
             element={

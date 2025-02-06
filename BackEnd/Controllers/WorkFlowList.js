@@ -1,15 +1,15 @@
-const ListModel = require("../models/CardsListSchema")
+const WorkFlowListModel = require("../models/WorkFlowListSchema")
 
 
 
 
-const getAllLists = async function (req, res) {
+const getAllWorkFlowLists = async function (req, res) {
     try {
-        const List = await ListModel.find({isDeleted: false}).populate('list').exec()
+        const WorkFlowList = await WorkFlowListModel.find({ isDeleted: false }).populate('list').exec()
         res.status(200).json({
             success: true,
-            message: 'Lists data',
-            data: List
+            message: 'WorkFlowList data',
+            data: WorkFlowList
         })
     } catch (error) {
         res.status(400).json({
@@ -21,19 +21,19 @@ const getAllLists = async function (req, res) {
 
 }
 
-const addNewList = async (req, res) => {
+const addNewWorkFlowList = async (req, res) => {
     try {
         const { title, list, Project } = req.body
-        const List = new ListModel({
+        const WorkFlowList = new WorkFlowListModel({
             title,
             list,
             Project
         })
-        const result = await List.save()
+        const result = await WorkFlowList.save()
 
         res.status(201).json({
             success: true,
-            message: 'List Added successfully',
+            message: 'WorkFlowList Added successfully',
             data: result
         })
     } catch (error) {
@@ -45,14 +45,14 @@ const addNewList = async (req, res) => {
 }
 
 
-const getListsByProjectId = async (req, res) => {
+const getWorkFlowListsByProjectId = async (req, res) => {
     try {
         const { id } = req.params;
-        const List = await ListModel.findOne({ project: id }).exec();
+        const WorkFlowList = await WorkFlowListModel.findOne({ project: id }).exec();
         res.status(200).json({
             success: true,
-            message: 'List founded successfully',
-            data: List
+            message: 'WorkFlowList founded successfully',
+            data: WorkFlowList
         })
 
     } catch (error) {
@@ -62,12 +62,12 @@ const getListsByProjectId = async (req, res) => {
         })
     }
 }
-const modifyList = async (req, res) => {
+const modifyWorkFlowList = async (req, res) => {
     try {
         const { id } = req.params;
         const { title, list, Project } = req.body;
 
-        const List = await ListModel.findOneAndUpdate(
+        const WorkFlowList = await WorkFlowListModel.findOneAndUpdate(
             { _id: id },
             {
                 title: title,
@@ -79,7 +79,7 @@ const modifyList = async (req, res) => {
         res.status(200).json({
             success: true,
             message: 'List deleted successfully',
-            data: List
+            data: WorkFlowList
         })
 
     } catch (error) {
@@ -89,11 +89,11 @@ const modifyList = async (req, res) => {
         })
     }
 }
-const deleteList = async (req, res) => {
+const deleteWorkFlowList = async (req, res) => {
     try {
         const { id } = req.params;
 
-        const List = await ListModel.findOneAndUpdate(
+        const WorkFlowList = await WorkFlowListModel.findOneAndUpdate(
             { _id: id },
             {
                 isDeleted: true,
@@ -102,8 +102,8 @@ const deleteList = async (req, res) => {
         ).exec();
         res.status(200).json({
             success: true,
-            message: 'List deleted successfully',
-            data: List
+            message: 'WorkFlowList deleted successfully',
+            data: WorkFlowList
         })
 
     } catch (error) {
@@ -117,4 +117,4 @@ const deleteList = async (req, res) => {
 
 
 
-module.exports = { getAllLists, getListsByProjectId, addNewList, modifyList, deleteList };
+module.exports = { getAllWorkFlowLists, addNewWorkFlowList, getWorkFlowListsByProjectId, modifyWorkFlowList, deleteWorkFlowList };

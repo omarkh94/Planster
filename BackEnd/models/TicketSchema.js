@@ -1,26 +1,28 @@
 const mongoose = require('mongoose');
 
-const CardSchema = new mongoose.Schema(
+const TicketSchema = new mongoose.Schema(
   {
     title: { type: String, required: true },
     description: { type: String, required: false },
+    status: { type: mongoose.Schema.Types.ObjectId, ref: 'WorkFlowList', required: true },
     author: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
     assignee: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: false },
-    comments: [ 
+    expectedDeadLine: { type: String, required: true , required: false},
+    comments: [
       { type: mongoose.Schema.Types.ObjectId, ref: 'Comment', required: false },
     ],
-    updatedBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
+    updatedBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: false },
     isDeleted: { type: Boolean, default: false },
   },
   { timestamps: true }
 );
 
 
-CardSchema.pre('save', function (next) {
+TicketSchema.pre('save', function (next) {
   if (!this.updatedBy) {
     this.updatedBy = this.author;
   }
   next();
 });
 
-module.exports = mongoose.model('Card', CardSchema);
+module.exports = mongoose.model('Ticket', TicketSchema);

@@ -1,8 +1,8 @@
-const teamRolesModel = require("../models/TeamRoleSchema");
+const RolesModel = require("../models/RoleSchema");
 
-const getAllTeamRoles = async (req, res) => {
+const getAllRoles = async (req, res) => {
     try {
-        const roles = await teamRolesModel.find({isDeleted: false}).populate().exec();
+        const roles = await RolesModel.find({isDeleted: false}).populate().exec();
 
         res.status(200).json({
             success: true,
@@ -20,13 +20,13 @@ const getAllTeamRoles = async (req, res) => {
 
 
 
-const createNewTeamRole = async (req, res) => {
+const createNewRole = async (req, res) => {
     try {
         const { role, permissions } = req.body
-        const newTeamRole = new teamRolesModel({
+        const newRole = new RolesModel({
             role, permissions
         })
-        const result = await newTeamRole.save()
+        const result = await newRole.save()
         res.status(201).json({
             success: true,
             message: "role created successfully",
@@ -42,7 +42,7 @@ const createNewTeamRole = async (req, res) => {
     }
 }
 
-const ModifyTeamRole = async (req, res) => {
+const ModifyRole = async (req, res) => {
     try {
         const { id } = req.params;
         const { role, permissions } = req.body;
@@ -70,7 +70,7 @@ const ModifyTeamRole = async (req, res) => {
         })
     }
 }
-const DeleteTeamRole = async (req, res) => {
+const DeleteRole = async (req, res) => {
     try {
         const { id } = req.params;
         
@@ -99,4 +99,4 @@ const DeleteTeamRole = async (req, res) => {
     }
 }
 
-module.exports = { createNewTeamRole, getAllTeamRoles,ModifyTeamRole,DeleteTeamRole }
+module.exports = { createNewRole, getAllRoles,ModifyRole,DeleteRole }

@@ -1,8 +1,8 @@
 const ProjectModel = require("../models/ProjectSchema")
 const TeamModel = require("../models/TeamSchema")
-const ListModel = require("../models/CardsListSchema")
-const CardModel = require("../models/CardSchema")
-const TeamRoleModel = require("../models/TeamRoleSchema")
+const WorkFlowListModel = require("../models/WorkFlowListSchema")
+const TicketModel = require("../models/TicketSchema")
+const RoleModel = require("../models/RoleSchema")
 
 
 const getProjectsList = async function (req, res) {
@@ -23,52 +23,77 @@ const getProjectsList = async function (req, res) {
 
 }
 
+
+
 const AddNewProject = async (req, res) => {
     try {
         const { userId } = req.token
-        const { name, description, expectedDeadLine } = req.body
-        const getTeamRole = await TeamRoleModel.find({ role: 'admin' })
-        const { _id: teamRoleId } = getTeamRole[0];
-        const createNewTeam = new TeamModel([{
-            name,
-            members: [{ user: userId, role: teamRoleId }]
-        }])
-        const createNewCard = new CardModel({
-            title: 'Initial Card',
-            description: 'Enjoy Planing Your project With Planster',
-            author: userId
-        })
-        const createNewList = new ListModel({
-            title: 'Initial List',
+        const { title, description, expectedDeadLine } = req.body
+
+        const getRole = await RoleModel.find({ role: 'admin' });
+
+        if (getRole.length === 0) {
+            return res.status(404).json({
+                success: false,
+                message: 'Admin role not found.',
+            });
+        }
+
+        const { _id: RoleId } = getRole[0];
+
+        const createNewTeam = new TeamModel({
+            name: title,
+            description: 'basic team',
+            members: [userId],  
+          });
+          
+        await createNewTeam.save();
+
+        const createNewWorkFlowList = new WorkFlowListModel({
+            title: 'Backlog', 
+            author: userId, 
+        });
+        
+        await createNewWorkFlowList.save(); 
+        
+        const createNewTicket = new TicketModel({
+            title: 'Initial Ticket',
+            description: 'Enjoy Planning Your project With Planster',
+            status: createNewWorkFlowList._id,  
             author: userId,
-            list: [createNewCard?._id]
-        })
-        createNewCard.save()
-        createNewList.save()
-        createNewTeam.save()
+            expectedDeadLine: expectedDeadLine,
+        });
+        
+        await createNewTicket.save();
+        
+
+
         const Project = new ProjectModel({
-            name,
+            title,
             description,
             expectedDeadLine,
             team: createNewTeam._id,
+            members: [{ user: userId, role: RoleId }],
             projectOwner: userId,
-            list: [createNewList]
-        })
-        console.log('Project :>> ', Project);
-        const result = await Project.save()
+            list: [createNewWorkFlowList._id], 
+        });
+
+        const result = await Project.save();
 
         res.status(201).json({
             success: true,
-            message: 'Project Added successfully',
-            data: result
-        })
+            message: 'Project added successfully',
+            data: result,
+        });
     } catch (error) {
+        console.error('Error:', error.message); 
         res.status(500).json({
             success: false,
-            message: error.message,
-        })
+            message: 'An error occurred while creating the project.',
+        });
     }
-}
+};
+
 
 
 const getProjectsById = async (req, res) => {
@@ -91,12 +116,12 @@ const getProjectsById = async (req, res) => {
 const ModifyProject = async (req, res) => {
     try {
         const { id } = req.params;
-        const { name, description, expectedDeadLine, team, projectOwner, list } = req.body;
+        const { title, description, expectedDeadLine, team, projectOwner, list } = req.body;
 
         const project = await ProjectModel.findOneAndUpdate(
             { _id: id },
             {
-                name: name,
+                title: title,
                 description: description,
                 expectedDeadLine: expectedDeadLine,
                 team: team,

@@ -1,19 +1,36 @@
-const express = require('express')
-const UserRouter = express.Router()
+const express = require('express');
+const UserRouter = express.Router();
+
 const {
-    register, addUserToTeam, getAllUsers, login, getUsersByTeam, ModifyProfile, DeleteProfile, DeleteUser,
-    getUsersByProject } = require("../Controllers/User");
+    register,
+    login,
+    getAllUsers,
+    getUsersByTeam,
+    modifyProfile,
+    deleteProfile,
+    removeMemberFromProject,
+    moveOrRemoveMemberFromTeam,
+    addUserToTeam
+} = require("../Controllers/User");
+
 const authentication = require('../middleWares/authentication');
 const authorization = require('../middleWares/authorization');
 
+// Authentication Routes
 UserRouter.post('/register', register);
 UserRouter.post('/login', login);
-UserRouter.post('/UserToTeam', authentication, authorization("UPDATE_TEAM"), addUserToTeam);
-UserRouter.get('/', authentication, authorization("SHOW_USERS"), getAllUsers);
-UserRouter.get('/:teamId', authentication, authorization("READ_TEAM"), getUsersByTeam);
-UserRouter.get('/:projectId', authentication, authorization("READ_PROJECT"), getUsersByProject);
-UserRouter.put("/:id", authentication, authorization("UPDATE_PROFILE"), ModifyProfile);
-UserRouter.delete("/deactivate/:id", authentication, authorization("DELETE_PROFILE"), DeleteProfile);
-UserRouter.delete("/delete/:id", authentication, authorization("DELETE_USER"), DeleteUser);
 
-module.exports = UserRouter
+// Profile Routes
+UserRouter.get('/', authentication, authorization("SHOW_USERS"), getAllUsers);
+UserRouter.put('/profile/:id', authentication, authorization("UPDATE_PROFILE"), modifyProfile);
+UserRouter.delete('/profile/:id', authentication, authorization("DELETE_PROFILE"), deleteProfile);
+
+// Team Routes
+UserRouter.post('/team/addUser', authentication, authorization("UPDATE_TEAM"), addUserToTeam);
+UserRouter.get('/team/:teamId', authentication, authorization("READ_TEAM"), getUsersByTeam);
+UserRouter.put('/team/:teamId/member/:memberId', authentication, authorization("MOVE_OR_REMOVE_MEMBER_FROM_TEAM"), moveOrRemoveMemberFromTeam);
+
+// Project Routes
+UserRouter.delete('/project/:projectId/member/:memberId', authentication, authorization("REMOVE_MEMBER_FROM_PROJECT"), removeMemberFromProject);
+
+module.exports = UserRouter;

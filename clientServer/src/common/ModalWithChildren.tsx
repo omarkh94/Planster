@@ -16,7 +16,7 @@ const ModalWithChildren = ({
   return (
     <AnimatePresence>
       <motion.div
-        className="fixed inset-0 flex items-center justify-center z-50 p-4 overflow-y-auto"
+        className="fixed inset-0 flex items-center justify-center z-50 p-4 overflow-y-auto "
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         exit={{ opacity: 0 }}
@@ -32,7 +32,7 @@ const ModalWithChildren = ({
         <motion.div
           className={`relative bg-white dark:bg-secondary  shadow-lg w-full   mx-auto scrollbar-hide overflow-scroll scroll-smooth ${
             size === "large"
-              ? "max-w-[60vw]  max-h-[85vh] min-h-[60vh]"
+              ? "max-w-[60vw]  max-h-[90vh] min-h-[60vh]"
               : size === "medium"
               ? " sm:max-w-[40vw]  max-h-[50vh] min-h-[80vh]"
               : "max-w-[30vw]  max-h-[30vh] min-h-[30vh]"
