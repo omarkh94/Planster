@@ -2,10 +2,9 @@ import { useNavigate } from "react-router-dom";
 import { useUser } from "../store/UserStore";
 const Projects = () => {
   const navigate = useNavigate();
-  // TODO: id user should come from token later
   const { projects, setDialogOpen } = useUser();
   const adminUser = projects.filter((project) =>
-    project.team.members.some((member) => member.role.role === "admin")
+    project.members.some((member) => member.role.role === "admin")
   );
 
   return (
@@ -45,17 +44,17 @@ const Projects = () => {
                         className="cursor-pointer underline w-[12%] px-2"
                         onClick={(e) => {
                           e.stopPropagation();
-                          navigate(`/team/${project.team.id}`);
+                          navigate(`/team/${project.teams[0].id}`);
                         }}
                       >
-                        {project.team.name}
+                        {project.teams.map((team) => team.name)}
                       </td>
                       <td className="underline cursor-pointer w-[13%] px-2">
                         {Array.isArray(project.projectOwner)
                           ? project.projectOwner
                               .map((owner) => owner.id)
                               .join(", ")
-                          : project.projectOwner?.name}
+                          : project.projectOwner?.firstName}
                       </td>
                       {adminUser && (
                         <>

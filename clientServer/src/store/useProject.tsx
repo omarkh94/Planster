@@ -1,4 +1,4 @@
-import { CardType } from "@/types";
+import { TicketType } from "@/types";
 import { create } from "zustand";
 
 type Store = {
@@ -8,8 +8,8 @@ type Store = {
   setCreateCardModalOpen: (open: boolean) => void;
   CreateListModalOpen: boolean;
   setCreateListModalOpen: (open: boolean) => void;
-  selectedCard: CardType | null;
-  setSelectedCard: (card: CardType | null) => void;
+  selectedCard: TicketType | null;
+  setSelectedCard: (card: TicketType | null) => void;
 };
 
 export const useProject = create<Store>()((set) => ({

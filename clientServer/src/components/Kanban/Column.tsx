@@ -3,7 +3,7 @@ import React, { useState } from "react";
 import CreateCard from "../../common/CreateCard";
 import { mockData } from "../../mock";
 import { useUser } from "../../store/UserStore";
-import { CardType, ColumnProps, ProjectType } from "../../types";
+import { TicketType, ColumnProps, ProjectType } from "../../types";
 import Card from "./Card";
 
 const Column: React.FC<ColumnProps> = ({ title, list, id }) => {
@@ -11,7 +11,7 @@ const Column: React.FC<ColumnProps> = ({ title, list, id }) => {
   // TODO: remove mock data & handle add card & remove "Projects array from here" and get back to me so i can remove the modal from this file
   const [projects, setProjects] = useState<ProjectType[]>(mockData.projects);
 
-  const handleAddCard = (listIndex: number, newCard: CardType) => {
+  const handleAddCard = (listIndex: number, newCard: TicketType) => {
     const updatedProjects = [...projects];
     updatedProjects[selectedProjectIndex].list[listIndex].list.push(newCard);
     setProjects(updatedProjects);
@@ -45,7 +45,7 @@ const Column: React.FC<ColumnProps> = ({ title, list, id }) => {
             </button>
             {open && (
               <CreateCard
-                onCreate={(newCard: CardType) =>
+                onCreate={(newCard: TicketType) =>
                   handleAddCard(Number(id), newCard)
                 }
                 onClose={() => setOpen(false)}

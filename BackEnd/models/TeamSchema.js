@@ -5,7 +5,7 @@ const TeamSchema = new mongoose.Schema(
     {
         name: { type: String, required: true, unique: true },
         description: { type: String, required: true },
-        members: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User', required: false }], 
+        project: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Project', required: false }], 
         isDeleted: { type: Boolean, default: false },
       },
       { timestamps: true }

@@ -7,7 +7,7 @@ const RoleModel = require("../models/RoleSchema")
 
 const getProjectsList = async function (req, res) {
     try {
-        const Project = await ProjectModel.find({ isDeleted: false }).populate('User').exec()
+        const Project = await ProjectModel.find({ isDeleted: false }).populate('members').exec()
         res.status(200).json({
             success: true,
             message: 'Projects data',
@@ -170,5 +170,32 @@ const DeleteProject = async (req, res) => {
 
 
 
+const projectMembers = async (req, res) => {
+    try {
+        const projectId = req.params.projectId;
+        const projects = await ProjectModel.find({ _id: projectId, isDeleted: false })
+            .populate('members')
+            .exec();
 
-module.exports = { getProjectsList, getProjectsById, AddNewProject, ModifyProject, DeleteProject }
+        const members = [...new Set(projects.flatMap((project) =>
+            project.members?.map((member) => member.user?._id).filter(Boolean) || []
+        ))];
+
+        res.status(200).json({
+            success: true,
+            message: "Projects data retrieved successfully",
+            data: members,
+        });
+    } catch (error) {
+        res.status(500).json({
+            success: false,
+            message: error.message,
+        });
+    }
+};
+
+
+
+
+
+module.exports = { getProjectsList, getProjectsById, AddNewProject, ModifyProject, DeleteProject ,projectMembers}

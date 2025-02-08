@@ -6,69 +6,94 @@ export interface BaseEntity {
   createdAt?: Date;
   updatedAt?: Date;
 }
+export interface Member {
+  user: UserType;
+  role: Role;
+}
+export interface project {
+  project: ProjectType;
+  role: Role;
+}
 export interface UserType extends BaseEntity {
-  name: string;
+  firstName: string;
   lastName: string;
   email: string;
+  formattedPhoneNumber: string;
+  projects: project;
   password: string;
-  jobTitle: string;
-  gender: "male" | "female";
-  phoneNumber: number;
+  team: TeamType;
+  jobTitle: "Front-end dev" | "Back-end dev";
+
 }
-export interface TeamRole extends BaseEntity {
+export interface Role extends BaseEntity {
   role: "admin" | "supervisor" | "member";
   permissions: Array<string>;
 }
-export interface TeamMember {
-  user: UserType;
-  role: TeamRole;
-}
+
 export interface TeamType extends BaseEntity {
   name: string;
-  members: Array<TeamMember>;
-  roomId: ChatRoomType;
+  description: string;
+  members: Array<UserType>;
 }
 
 export interface CommentType extends BaseEntity {
   description: string;
   commenter: UserType;
 }
-export interface CardType extends BaseEntity {
+export interface TicketType extends BaseEntity {
   title: string;
   description: string;
+  status: WorkFlowListType;
   author: UserType;
   assignee: UserType;
+  expectedDeadLine: Date;
   comments: Array<CommentType>;
+  updatedBy: UserType;
 }
 
-export interface CardListType extends BaseEntity {
-  title: string;
+export interface WorkFlowListType extends BaseEntity {
+  title:
+    | "Backlog"
+    | "To Do"
+    | "In Progress"
+    | "Blocked"
+    | "Code Review"
+    | "Ready for QA"
+    | "QA In Progress"
+    | "Approved"
+    | "Done"
+    | "Deployed";
+  project: ProjectType;
   author: UserType;
-  list: Array<CardType>;
+  list: Array<TicketType>;
   updatedBy: UserType;
 }
 
 export interface ProjectType extends BaseEntity {
   title: string;
   description: string;
-  expectedDeadLine: Date;
-  team: TeamType;
+  teams: Array<TeamType>;
   projectOwner: UserType;
-  list: Array<CardListType>;
-  updatedBy?: UserType;
+  expectedDeadLine: Date;
+  members: Array<Member>;
+  list: Array<WorkFlowListType>;
 }
 
 export interface MessageType extends BaseEntity {
   content: string;
   sender: UserType;
+  chatRoomId: ProjectType;
   timestamp: Date;
+  seenBy: UserType;
   teamId: string;
   mentions: UserType[];
   replies: ReplyType[];
+  deliveredTo: UserType[];
+  notifiedUsers: UserType[] ;
 }
 
 export interface ChatRoomType {
-  roomId: string;
+  chatRoomId: MessageType.chatRoomId;
   messages: Array<MessageType>;
   users: Array<UserType>;
 }
@@ -103,9 +128,16 @@ export type Card = {
 export interface FormItemProps {
   name: string;
   label?: string;
-  type?: 'text' | 'password' | 'email' | 'checkbox' | 'select' | 'textarea' | 'radio';
+  type?:
+    | "text"
+    | "password"
+    | "email"
+    | "checkbox"
+    | "select"
+    | "textarea"
+    | "radio";
   placeholder?: string;
-  options?: { value: string; label: string }[]; // For select type
+  options?: { value: string; label: string }[];
   className?: string;
   labelClass?: string;
   inputClass?: string;

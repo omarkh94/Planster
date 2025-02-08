@@ -5,6 +5,7 @@ import { countries } from "@/mock";
 import { registerSchema, RegisterSchema } from "@/schemas/RegisterSchema";
 import { useAuthStore } from "@/store/useAuthStore";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { KeyRound, Send } from "lucide-react";
 import { useForm, FormProvider } from "react-hook-form";
 const RegisterModal = () => {
   const methods = useForm<RegisterSchema>({
@@ -17,12 +18,23 @@ const RegisterModal = () => {
       },
     },
   });
-  const { setRegisterModalOpen } = useAuthStore();
+  const { setRegisterModalOpen , setLoginModalOpen} = useAuthStore();
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const onSubmit:any = (values: RegisterSchema) => {
-    console.log("values :>> ", values);
+  const onSubmit: any = (values: RegisterSchema) => {
+    const { countryCode, number } = values.mobileNumber;
+    const formattedPhoneNumber = `${countryCode}-${number}`;
+
+    const submitData = {
+      ...values,
+      mobileNumber: formattedPhoneNumber,  
+    };
+
+    console.log("Formatted Values to Submit: ", submitData);
+
+    if (Object.keys(methods.formState.errors).length === 0) {
+      methods.reset();
+    }
   };
-  console.log("methods.register() :>> ", methods.formState.errors);
 
   const onPhoneChange = (name: string, value: string) => {
     methods.setValue(name as keyof RegisterSchema, value);
@@ -48,7 +60,6 @@ const RegisterModal = () => {
               onSubmit={methods.handleSubmit(onSubmit)}
               className="flex flex-col gap-4 w-full"
             >
-              <div className="flex flex-row  items-center justify-center w-full "></div>
               {/* First row */}
               <div className="flex flex-col md:flex-row gap-4 w-full justify-between">
                 <FormItem
@@ -137,12 +148,14 @@ const RegisterModal = () => {
               {/* Fourth row */}
               <div className="flex flex-col md:flex-row gap-4 justify-between items-center ">
                 <button
-                  className="bg-primary border border-border px-6 py-2 text-white font-semibold"
+                  className="flex flex-row gap-2 items-center bg-primary border border-border px-4 py-2 text-white font-semibold"
                   type="submit"
                   onClick={methods.handleSubmit(onSubmit)}
                   autoFocus
                 >
-                  Send
+                  <Send  className="h-4 w-4 mr-2 text-secondary"
+          strokeWidth={3} />
+                  Confirm
                 </button>
               </div>
             </form>
@@ -151,9 +164,16 @@ const RegisterModal = () => {
         <div className="w-full h-full flex items-center justify-center gap-6 md:gap-12 flex-col md:flex-row p-4 md:p-8">
           <p className="text-black"> Already Have An Account?</p>
           <button
-            onClick={() => {}}
-            className="bg-primary border border-border px-6 py-2 text-white font-semibold"
-          >
+           onClick={() => {
+             setRegisterModalOpen(false)
+             setLoginModalOpen(true)
+            
+          }}  
+            className="flex flex-row gap-2 items-center bg-primary border border-border px-4 py-2 text-white font-semibold"
+          ><KeyRound
+          className="h-4 w-4 mr-2 text-secondary"
+          strokeWidth={3}
+        />
             Login
           </button>
         </div>

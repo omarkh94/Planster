@@ -1,20 +1,9 @@
 import { useState } from "react";
 import { mockData } from "../mock";
 import { useUser } from "../store/UserStore";
-import { CardListType, TeamType, UserType } from "../types";
+import { ProjectType } from "../types";
 import DatePicker from "./DatePicker";
 import ModalWithChildren from "./ModalWithChildren";
-
-type ProjectType = {
-  id: string;
-  title: string;
-  description: string;
-  expectedDeadLine: Date;
-  team: TeamType;
-  projectOwner: UserType;
-  list: Array<CardListType>;
-  updatedBy?: UserType;
-};
 
 const CreateProject = () => {
   const { setDialogOpen, setProjects, projects } = useUser();
@@ -27,7 +16,6 @@ const CreateProject = () => {
     description: "",
     expectedDeadLine: undefined,
   });
-  const team: TeamType = mockData.teams[0];
 
   const handleClose = () => {
     setDialogOpen(false);
@@ -39,18 +27,11 @@ const CreateProject = () => {
       title: values.title,
       description: values.description,
       expectedDeadLine: values.expectedDeadLine ?? new Date(),
-      team: team,
-      projectOwner: {
-        id: "owner-id",
-        name: "Project Owner",
-        lastName: "",
-        email: "",
-        password: "",
-        jobTitle: "",
-        gender: "male",
-        phoneNumber: 0,
-      },
+      // teams: {...teams , values.team},
+      projectOwner: mockData.users[0],
       list: [],
+      members: [],
+      teams: []
     };
 
     setProjects([...projects, newProject]);
@@ -90,6 +71,31 @@ const CreateProject = () => {
             />
           </div>
           <div className="flex flex-col gap-2 items-start justify-start w-full">
+            <label htmlFor="project-teams">Project Teams</label>
+            <select
+              id="project-teams"
+              className="outline-none border border-border px-2 py-1 w-full"
+              // onSubmit={(e) => setValues({ ...values, team: e.target.value })}
+            >
+              <option value="">Select a team</option>
+              <option value="team-one">Team One</option>
+              <option value="team-two">Team Two</option>
+              <option value="team-three">Team Three</option>
+            </select>
+          </div>
+
+          <div className="flex flex-col gap-2 items-start justify-start w-full">
+            <label htmlFor="project-title">Project Title</label>
+            <input
+              id="project-title"
+              type="text"
+              className="outline-none border-border border px-2 py-1 w-full placeholder:font-caveat"
+              placeholder="Project Title"
+              value={values.title}
+              onChange={(e) => setValues({ ...values, title: e.target.value })}
+            />
+          </div>
+          <div className="flex flex-col gap-2 items-start justify-start w-full">
             <label htmlFor="project-Deadline">Deadline</label>
             <DatePicker
               date={values.expectedDeadLine}
@@ -123,3 +129,14 @@ const CreateProject = () => {
   );
 };
 export default CreateProject;
+
+
+
+
+
+
+
+
+
+
+

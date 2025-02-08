@@ -1,6 +1,6 @@
-import { TeamMember } from "@/types";
+import { Member } from "@/types";
 import { Avatar, AvatarImage, AvatarFallback } from "./ui/avatar";
-const TeamMemberChatCard = ({ member }: { member: TeamMember }) => {
+const MemberChatCard = ({ member }: { member: Member }) => {
   const randomId = Math.floor(Math.random() * 99999)
   return (
     <div className="flex flex-row gap-4 justify-between items-center bg-white w-full  p-4 rounded-md hover:bg-white/60 hover:text-white">
@@ -11,7 +11,7 @@ const TeamMemberChatCard = ({ member }: { member: TeamMember }) => {
         </Avatar>
 
         <h1 className="text-base sm:text-lg  lg:text-xl xl:text-2xl  font-semibold ">
-          {member.user?.name} {member.user?.lastName}
+          {member.user?.firstName} {member.user?.lastName}
         </h1>
       </div>
       <p className="text-lg capitalize font-semibold italic text-black/70">
@@ -21,4 +21,4 @@ const TeamMemberChatCard = ({ member }: { member: TeamMember }) => {
   );
 };
 
-export default TeamMemberChatCard;
+export default MemberChatCard;

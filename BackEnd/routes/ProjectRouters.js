@@ -3,7 +3,7 @@ const { getProjectsList,
      getProjectsById,
      AddNewProject,
      ModifyProject,
-     DeleteProject } = require("../Controllers/Project");
+     DeleteProject, projectMembers} = require("../Controllers/Project");
 
 
 const RolesRouter = require('./RolesRouter')
@@ -16,6 +16,7 @@ const ProjectRouter = express.Router()
 
 ProjectRouter.use("/workFlowList", WorkFlowListRouter)
 ProjectRouter.get("/", authentication, authorization("READ_PROJECT"), getProjectsList)
+ProjectRouter.get("/members/:projectId", authentication, authorization("READ_PROJECT"), projectMembers)
 ProjectRouter.get("/:projectId", authentication, authorization("READ_PROJECT"), getProjectsById)
 ProjectRouter.post("/", authentication, AddNewProject)
 ProjectRouter.put("/:id", authentication, authorization("UPDATE_PROJECT"), ModifyProject)

@@ -4,15 +4,18 @@ const ProjectSchema = new mongoose.Schema(
   {
     title: { type: String, required: true, unique: true },
     description: { type: String, required: true },
-    teams: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Team', required: false }], 
     projectOwner: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true }, 
+    expectedDeadLine:{type: String, required: true},
     members: [
       {
         user: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
         role: { type: mongoose.Schema.Types.ObjectId, ref: 'Role', required: true },
+        teams:[{type: mongoose.Schema.Types.ObjectId, ref: 'Team', required: false}]
       },
     ], 
+    list:[{ type: mongoose.Schema.Types.ObjectId, ref: 'WorkFlowList', required: true }],
     isDeleted: { type: Boolean, default: false },
+    roomId: { type: mongoose.Schema.Types.ObjectId, ref: 'ChatRoom;', required: true }
   },
   { timestamps: true }
 );

@@ -8,9 +8,9 @@ const PORT = process.env.PORT
 const UserRouter = require('./routes/UserRouter');
 const { ProjectRouter } = require('./routes/ProjectRouters');
 const TeamRouter = require('./routes/TeamRouter');
-const { initChatRoom } = require('./chatRooms');
 const MessageRouter = require('./routes/MessagesRouter');
 const InviteRouter = require('./routes/InviteRouter');
+const { initChatRoom } = require('./ChatRooms.js');
 const app = express()
 app.use(cors())
 app.use(express.json())
@@ -38,7 +38,7 @@ const rooms = {
 
 io.on("connection", (socket) => {
     try {
-        initChatRoom(socket, io, rooms);
+        initChatRoom (socket, io, rooms);
         console.log("A user connected.");
     } catch (error) {
         console.error("Error in chat room initialization:", error);

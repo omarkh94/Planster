@@ -42,6 +42,9 @@ const SendMessage: React.FC<SendMessageProps> = ({
     }
   };
 
+
+  
+
   return (
     <div
       className={`w-full flex flex-col gap-2 items-center p-2 px-4  bg-green-50`}
@@ -49,7 +52,7 @@ const SendMessage: React.FC<SendMessageProps> = ({
       {selectedMessage?.id && (
         <div className="w-full flex flex-row justify-between">
           <p className="replying-to">
-            Replying to : {selectedMessage?.sender?.name}
+            Replying to : {selectedMessage?.sender?.firstName}
           </p>
         </div>
       )}
@@ -78,3 +81,42 @@ const SendMessage: React.FC<SendMessageProps> = ({
 };
 
 export default SendMessage;
+
+
+
+
+
+
+  // const handleSend = () => {
+  //   if (socketRef.current && roomId && userId) {
+  //     const mentions = extractMentions(cloud);
+  //     const replyTo = selectedMessage?.id;
+      
+  //     // Send message to backend using axios
+  //     axios.post("http://localhost:5000/messages/save", {
+  //       senderId: userId,
+  //       roomId: roomId,
+  //       content: cloud,
+  //       mentions: mentions,
+  //       replyTo: replyTo,
+  //     })
+  //     .then((response) => {
+  //       console.log("Message sent:", response.data);
+  //       setCloud("");
+  //       onCancelReply();
+  //     })
+  //     .catch((error) => {
+  //       console.error("Error sending message:", error);
+  //     });
+  
+  //     // Emit socket event
+  //     socketRef.current.emit("SEND_MESSAGE", {
+  //       roomId,
+  //       message: cloud,
+  //       from: localStorage.getItem("name"),
+  //       userId,
+  //       mentions,
+  //       replyTo,
+  //     });
+  //   }
+  // };

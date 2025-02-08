@@ -22,7 +22,8 @@ module.exports = {
                 text: '#00221C',
                 hover: '#005549',
                 lightError: '#EA6C61',
-                lightSuccess: '#09EB22'
+                lightSuccess: '#09EB22',
+                forgottenPass:"#848484"
             },
             screens: {
                 xs: '400px'

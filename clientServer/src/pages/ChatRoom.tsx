@@ -5,8 +5,8 @@ import SendMessage from "../components/SendMessage";
 import { MessageType } from "../types";
 import { Button } from "@/components/ui";
 import { PlusIcon } from "lucide-react";
-import TeamMemberChatCard from "@/components/TeamMemberChatCard";
-import { teams } from "@/mock";
+import MemberChatCard from "@/components/MemberChatCard";
+import { projects } from "@/mock";
 import InviteTeamMember from "@/components/InviteTeamMember";
 
 const ChatRoom = () => {
@@ -66,8 +66,8 @@ const ChatRoom = () => {
     setTeamModalOpen(true);
   };
   return (
-    <>
-      <div className="flex flex-row w-full  max-h-[calc(100vh-130px)] h-[calc(100vh-130px)]">
+    <div className="flex flex-row w-full  max-h-[calc(100vh)] h-[calc(100vh-65px)]">
+      
         <div className="min-h-full  flex-col gap-2 p-4 border-e border-e-gray-300 w-1/3 bg-primary hidden lg:flex">
           {/* Header */}
           <div className="w-full flex flex-row gap-4 justify-between items-center">
@@ -79,8 +79,8 @@ const ChatRoom = () => {
             </Button>
           </div>
           {/* Team Members */}
-          {teams[0].members.map((elem) => {
-            return <TeamMemberChatCard key={elem.user.id} member={elem} />;
+          {projects[0].members.map((elem) => {
+            return <MemberChatCard key={elem.user.id} member={elem} />;
           })}
         </div>
 
@@ -94,7 +94,7 @@ const ChatRoom = () => {
             messages={messages}
             onReply={handleReply}
             selectedMessageId={selectedMessage?.id ?? ""}
-            userId={localStorage.getItem("userId")}
+            userId={localStorage.getItem("userId")|| null }
             onDelete={handleDelete}
           />
           <SendMessage
@@ -105,11 +105,12 @@ const ChatRoom = () => {
             onCancelReply={handleCancelReply}
           />
         </div>
-      </div>
-      {teamModalOpen && (
-        <InviteTeamMember setTeamModalOpen={setTeamModalOpen} />
-      )}
-    </>
+
+        {teamModalOpen && (
+          <InviteTeamMember setTeamModalOpen={setTeamModalOpen} />
+        )}
+      
+    </div>
   );
 };
 

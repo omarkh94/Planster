@@ -34,8 +34,8 @@ const ModalWithChildren = ({
             size === "large"
               ? "max-w-[60vw]  max-h-[90vh] min-h-[60vh]"
               : size === "medium"
-              ? " sm:max-w-[40vw]  max-h-[50vh] min-h-[80vh]"
-              : "max-w-[30vw]  max-h-[30vh] min-h-[30vh]"
+              ? " sm:max-w-[40vw]  max-h-[50vh] min-h-[65vh]"
+              : "max-w-[37vw]  max-h-[40vh] min-h-[35vh]"
           }`}
           initial={{ scale: 0.95, opacity: 0, y: 50 }}
           animate={{ scale: 1, opacity: 1, y: 0 }}

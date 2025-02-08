@@ -1,12 +1,16 @@
 const mongoose = require('mongoose');
 
+const STATUS_TITLES = [
+  "Backlog", "To Do", "In Progress", "Blocked", "Code Review",
+  "Ready for QA", "QA In Progress", "Approved", "Done", "Deployed"
+]  
 
 mongoose
 const WorkFlowListSchema = new mongoose.Schema({
   title: {
       type: String,
       required: true,
-      enum: ["Backlog", "To Do", "In Progress", "Blocked", "Code Review", "Ready for QA", "QA In Progress", "Approved", "Done", "Deployed"]
+      enum: STATUS_TITLES
   },
   project: { type: mongoose.Schema.Types.ObjectId, ref: 'Project', required: false },
   author: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },

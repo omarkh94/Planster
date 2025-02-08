@@ -41,7 +41,7 @@ const MessageList: React.FC<MessageListProps> = ({
             }`}
           >
             <div className="flex flex-row justify-between items-center gap-2">
-              <h2 className="text-lg font-semibold">{message.sender.name}</h2>
+              <h2 className="text-lg font-semibold">{message.sender.firstName}</h2>
               {timeAgo(message.timestamp)}
             </div>
             <div className="text-base opacity-80">{message.content}</div>
