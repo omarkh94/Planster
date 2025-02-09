@@ -25,30 +25,28 @@ const SendMessage: React.FC<SendMessageProps> = ({
   };
 
   const handleSend = () => {
-    if (socketRef.current && roomId && userId) {
+    if (socketRef.current && roomId && userId && cloud.trim()) {
       const mentions = extractMentions(cloud);
       const replyTo = selectedMessage?.id;
+      
       socketRef.current.emit("SEND_MESSAGE", {
         roomId,
-        message: cloud,
+        message: cloud,  
         from: localStorage.getItem("name"),
         userId,
         mentions,
         replyTo,
       });
 
-      setCloud("");
-      onCancelReply();
+      setCloud("");  
+      onCancelReply(); 
+    } else {
+      console.log("Error: Missing required fields (roomId, userId, or message content).");
     }
   };
 
-
-  
-
   return (
-    <div
-      className={`w-full flex flex-col gap-2 items-center p-2 px-4  bg-green-50`}
-    >
+    <div className="drop-shadow-lg bg-secondary  w-full flex flex-col gap-2 items-center p-1 px-4 ">
       {selectedMessage?.id && (
         <div className="w-full flex flex-row justify-between">
           <p className="replying-to">
@@ -56,7 +54,7 @@ const SendMessage: React.FC<SendMessageProps> = ({
           </p>
         </div>
       )}
-      <div className="w-full flex flex-row gap-2 items-center justify-center ">
+      <div className="w-full flex flex-row gap-2 items-center  justify-center">
         <input
           type="text"
           value={cloud}
@@ -66,11 +64,11 @@ const SendMessage: React.FC<SendMessageProps> = ({
           placeholder="Type a message..."
         />
         <div className="flex flex-row gap-2 items-center justify-center">
-          <button className="p-2 border border-gray-300 rounded-md" onClick={handleSend}>
+          <button className="p-2 border text-primary border-gray-300 rounded-md" onClick={handleSend}>
             Send
           </button>
           {selectedMessage?.id && (
-            <button className="p-2 border border-gray-300 rounded-md" onClick={onCancelReply}>
+            <button className="p-2 border text-primary border-gray-300 rounded-md" onClick={onCancelReply}>
               Cancel
             </button>
           )}
@@ -81,42 +79,3 @@ const SendMessage: React.FC<SendMessageProps> = ({
 };
 
 export default SendMessage;
-
-
-
-
-
-
-  // const handleSend = () => {
-  //   if (socketRef.current && roomId && userId) {
-  //     const mentions = extractMentions(cloud);
-  //     const replyTo = selectedMessage?.id;
-      
-  //     // Send message to backend using axios
-  //     axios.post("http://localhost:5000/messages/save", {
-  //       senderId: userId,
-  //       roomId: roomId,
-  //       content: cloud,
-  //       mentions: mentions,
-  //       replyTo: replyTo,
-  //     })
-  //     .then((response) => {
-  //       console.log("Message sent:", response.data);
-  //       setCloud("");
-  //       onCancelReply();
-  //     })
-  //     .catch((error) => {
-  //       console.error("Error sending message:", error);
-  //     });
-  
-  //     // Emit socket event
-  //     socketRef.current.emit("SEND_MESSAGE", {
-  //       roomId,
-  //       message: cloud,
-  //       from: localStorage.getItem("name"),
-  //       userId,
-  //       mentions,
-  //       replyTo,
-  //     });
-  //   }
-  // };

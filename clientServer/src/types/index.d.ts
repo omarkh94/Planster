@@ -23,7 +23,6 @@ export interface UserType extends BaseEntity {
   password: string;
   team: TeamType;
   jobTitle: "Front-end dev" | "Back-end dev";
-
 }
 export interface Role extends BaseEntity {
   role: "admin" | "supervisor" | "member";
@@ -53,6 +52,7 @@ export interface TicketType extends BaseEntity {
 
 export interface WorkFlowListType extends BaseEntity {
   title:
+    | ""
     | "Backlog"
     | "To Do"
     | "In Progress"
@@ -89,7 +89,7 @@ export interface MessageType extends BaseEntity {
   mentions: UserType[];
   replies: ReplyType[];
   deliveredTo: UserType[];
-  notifiedUsers: UserType[] ;
+  notifiedUsers: UserType[];
 }
 
 export interface ChatRoomType {
@@ -117,14 +117,14 @@ export interface ChatState {
 export type ColumnProps = BaseEntity & {
   title: string;
   author?: UserType;
-  list: CardType[];
+  list: TicketType[];
   updatedBy?: UserType;
 };
 
-export type Card = {
-  id: string;
-  title: string;
-};
+// export type Card = {
+//   id: string;
+//   title: string;
+// };
 export interface FormItemProps {
   name: string;
   label?: string;

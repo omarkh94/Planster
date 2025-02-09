@@ -10,7 +10,7 @@ const { ProjectRouter } = require('./routes/ProjectRouters');
 const TeamRouter = require('./routes/TeamRouter');
 const MessageRouter = require('./routes/MessagesRouter');
 const InviteRouter = require('./routes/InviteRouter');
-const { initChatRoom } = require('./ChatRooms.js');
+const  {initChatRoom}  = require("./ChatRooms");
 const app = express()
 app.use(cors())
 app.use(express.json())

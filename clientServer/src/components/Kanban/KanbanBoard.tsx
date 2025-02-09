@@ -10,15 +10,17 @@ import { useParams } from "react-router-dom";
 import CreateList from "../../common/CreateList";
 import { useKanban } from "../../Context/KanbanContext";
 import "../../style/scroll.css";
-import { CardListType } from "../../types";
+import { WorkFlowListType } from "../../types";
 import Column from "./Column";
 
 const KanbanBoard: React.FC = () => {
-  const { projects, reorderLists, reorderCards, addListToProject } =
+  const { projects, reorderLists, reorderTickets, addListToProject } =
     useKanban();
   const { CreateListModalOpen, setCreateListModalOpen } = useProject();
   const { id } = useParams<{ id: string }>();
+  console.log('id :>> ', id);
   const projectIndex = projects.findIndex((project) => project.id === id);
+  console.log('projectIndex :>> ', projectIndex);
 
   useEffect(() => {
     if (projectIndex !== -1) {
@@ -31,6 +33,7 @@ const KanbanBoard: React.FC = () => {
   }
 
   const selectedProject = projects[projectIndex];
+  console.log('selectedProject :>> ', selectedProject);
 
   const handleDragEnd = (result: DropResult) => {
     const { destination, source, type } = result;
@@ -41,7 +44,7 @@ const KanbanBoard: React.FC = () => {
     } else {
       const sourceListIndex = parseInt(source.droppableId, 10);
       const destinationListIndex = parseInt(destination.droppableId, 10);
-      reorderCards(
+      reorderTickets(
         projectIndex,
         sourceListIndex,
         destinationListIndex,
@@ -51,7 +54,7 @@ const KanbanBoard: React.FC = () => {
     }
   };
 
-  const handleAddList = (newList: CardListType) => {
+  const handleAddList = (newList: WorkFlowListType) => {
     addListToProject(projectIndex, newList);
   };
   return (

@@ -200,6 +200,10 @@ const NavLayout = ({ children }: { children: React.ReactNode }) => {
         <main className="flex-1 bg-secondary w-full h-full flex flex-col  items-center justify-start ">
           {children}
         </main>
+      ) : location.pathname === "/welcome" ? (
+        <main className="flex-1 bg-[#89a6ac]   bg-cover bg-center  flex flex-col  items-center justify-center  relative  font-caveat  ">
+          {children}
+        </main>
       ) : (
         <main className="flex-1 bg-gray-300 w-full h-full p-4 ">
           {children}

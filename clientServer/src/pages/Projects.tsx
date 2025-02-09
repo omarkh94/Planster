@@ -40,15 +40,25 @@ const Projects = () => {
                       <td className=" w-[13%] px-2">
                         {project.expectedDeadLine.toLocaleDateString()}
                       </td>
-                      <td
-                        className="cursor-pointer underline w-[12%] px-2"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          navigate(`/team/${project.teams[0].id}`);
-                        }}
-                      >
-                        {project.teams.map((team) => team.name)}
+                      <td className="w-[12%] px-2">
+                        {project.teams.length > 0 ? (
+                          project.teams.map((team) => (
+                            <span
+                              key={team.id}
+                              className="cursor-pointer underline text-blue-600 hover:text-blue-800 block"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                navigate(`/team/${team.id}`);
+                              }}
+                            >
+                              {team.name}
+                            </span>
+                          ))
+                        ) : (
+                          <span className="text-gray-500">No teams</span>
+                        )}
                       </td>
+
                       <td className="underline cursor-pointer w-[13%] px-2">
                         {Array.isArray(project.projectOwner)
                           ? project.projectOwner
@@ -63,10 +73,13 @@ const Projects = () => {
                           </td>
                           <td className=" w-[12%] px-2">
                             <div className="flex flex-col py-2 gap-2">
-                              <button className="bg-background text-white border border-border  p-2 outline-none">
+                              <button className="bg-background text-white border border-border  p-2 outline-none"
+                              onClick={()=>{}}
+                              >
                                 Update
                               </button>
-                              <button className="bg-lightError text-white border border-border  p-2 outline-none">
+                              <button className="bg-lightError text-white border border-border  p-2 outline-none"
+                              onClick={()=>{}}>
                                 Delete
                               </button>
                             </div>

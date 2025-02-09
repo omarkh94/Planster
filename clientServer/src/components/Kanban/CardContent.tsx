@@ -1,5 +1,5 @@
 import { Button } from "@/components/ui/button";
-import { CardType } from "@/types";
+import { TicketType } from "@/types";
 import { Calendar, Clock, Edit2, MessageSquare, User } from "lucide-react";
 import { useCallback, useRef, useState } from "react";
 import { Textarea } from "../ui/textarea";
@@ -9,7 +9,7 @@ const CardContent = ({
   card,
   onUpdateDescription,
 }: {
-  card: CardType;
+  card: TicketType;
   onUpdateDescription?: (newDescription: string) => void;
 }) => {
   const [isEditing, setIsEditing] = useState(false);
@@ -113,7 +113,7 @@ const CardContent = ({
                     </div>
                     <div>
                       <p className="font-medium text-gray-900">
-                        {comment.commenter.name}
+                        {comment.commenter.firstName}
                       </p>
                     </div>
                   </div>
@@ -151,7 +151,7 @@ const CardContent = ({
                 <User size={16} className="text-gray-500" />
               </div>
               <span className="text-gray-900 font-medium">
-                {card.assignee.name}
+                {card.assignee.firstName}
               </span>
             </div>
           </div>
@@ -164,7 +164,7 @@ const CardContent = ({
                 <User size={16} className="text-gray-500" />
               </div>
               <span className="text-gray-900 font-medium">
-                {card.author.name}
+                {card.author.firstName}
               </span>
             </div>
           </div>

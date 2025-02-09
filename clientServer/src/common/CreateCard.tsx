@@ -1,22 +1,26 @@
 import React, { useState } from "react";
-import { CardType, UserType } from "../types";
+import { TicketType } from "../types";
 import ModalWithChildren from "./ModalWithChildren";
+import { mockUsers, mockWorkFlowLists } from "@/mock";
 
-const CreateCard: React.FC<{
-  onCreate: (card: CardType) => void;
+const CreateTicket: React.FC<{
+  onCreate: (card: TicketType) => void;
   onClose: () => void;
 }> = ({ onCreate, onClose }) => {
-  const [values, setValues] = useState<CardType>({
-    id: `card-${Math.random()}`,
-    title: "",
-    description: "",
-    createdAt: new Date(),
-    updatedAt: new Date(),
-    isDeleted: false,
-    author: { id: "user-1", name: "Author" } as UserType,
-    assignee: { id: "user-2", name: "Assignee" } as UserType,
-    comments: [],
-  });
+    const [values, setValues] = useState<TicketType>({
+      id: `card-${Math.random()}`,
+      title: "",
+      description: "",
+      createdAt: new Date(),
+      updatedAt: new Date(),
+      isDeleted: false,
+      author: mockUsers[0], 
+      assignee: mockUsers[1], 
+      comments: [],
+      status: mockWorkFlowLists[0],
+        expectedDeadLine: new Date(),
+        updatedBy: mockUsers[1],
+    });
 
   const handleClose = () => {
     setValues({
@@ -26,24 +30,30 @@ const CreateCard: React.FC<{
       createdAt: new Date(),
       updatedAt: new Date(),
       isDeleted: false,
-      author: { id: "user-1", name: "Author" } as UserType,
-      assignee: { id: "user-2", name: "Assignee" } as UserType,
+      author: mockUsers[0], 
+      assignee: mockUsers[1], 
       comments: [],
+      status: mockWorkFlowLists[0],
+      expectedDeadLine: new Date(),
+      updatedBy: mockUsers[1],
     });
     onClose();
   };
 
   const handleCreate = () => {
-    const newCard: CardType = {
+    const newCard: TicketType = {
       id: `card-${Math.random()}`,
       title: values.title,
       description: values.description,
       createdAt: new Date(),
       updatedAt: new Date(),
       isDeleted: false,
-      author: { id: "user-1", name: "Author" } as UserType,
-      assignee: { id: "user-2", name: "Assignee" } as UserType,
+      author: mockUsers[1], 
+      assignee: mockUsers[0],
       comments: [],
+      status: mockWorkFlowLists[0],
+      expectedDeadLine: new Date(),
+      updatedBy: mockUsers[1],
     };
     onCreate(newCard);
     handleClose();
@@ -103,4 +113,4 @@ const CreateCard: React.FC<{
   );
 };
 
-export default CreateCard;
+export default CreateTicket;

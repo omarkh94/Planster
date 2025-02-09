@@ -1,10 +1,11 @@
 import { Droppable } from "@hello-pangea/dnd";
 import React, { useState } from "react";
-import CreateCard from "../../common/CreateCard";
+
 import { mockData } from "../../mock";
 import { useUser } from "../../store/UserStore";
 import { TicketType, ColumnProps, ProjectType } from "../../types";
 import Card from "./Card";
+import CreateTicket from "../../common/CreateCard";
 
 const Column: React.FC<ColumnProps> = ({ title, list, id }) => {
   const { selectedIndex: selectedProjectIndex } = useUser();
@@ -44,7 +45,7 @@ const Column: React.FC<ColumnProps> = ({ title, list, id }) => {
               Create New Card
             </button>
             {open && (
-              <CreateCard
+              <CreateTicket
                 onCreate={(newCard: TicketType) =>
                   handleAddCard(Number(id), newCard)
                 }

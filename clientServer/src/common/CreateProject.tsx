@@ -4,8 +4,10 @@ import { useUser } from "../store/UserStore";
 import { ProjectType } from "../types";
 import DatePicker from "./DatePicker";
 import ModalWithChildren from "./ModalWithChildren";
+import { useNavigate } from "react-router-dom";
 
 const CreateProject = () => {
+  const navigate = useNavigate();
   const { setDialogOpen, setProjects, projects } = useUser();
   const [values, setValues] = useState<{
     title: string;
@@ -31,14 +33,14 @@ const CreateProject = () => {
       projectOwner: mockData.users[0],
       list: [],
       members: [],
-      teams: []
+      teams: [],
     };
 
     setProjects([...projects, newProject]);
-
+    navigate(`/project/${newProject.id}`);
     setTimeout(() => {
       setDialogOpen(false);
-    }, 750);
+    }, 300);
   };
 
   return (
@@ -68,31 +70,6 @@ const CreateProject = () => {
               onChange={(e) =>
                 setValues({ ...values, description: e.target.value })
               }
-            />
-          </div>
-          <div className="flex flex-col gap-2 items-start justify-start w-full">
-            <label htmlFor="project-teams">Project Teams</label>
-            <select
-              id="project-teams"
-              className="outline-none border border-border px-2 py-1 w-full"
-              // onSubmit={(e) => setValues({ ...values, team: e.target.value })}
-            >
-              <option value="">Select a team</option>
-              <option value="team-one">Team One</option>
-              <option value="team-two">Team Two</option>
-              <option value="team-three">Team Three</option>
-            </select>
-          </div>
-
-          <div className="flex flex-col gap-2 items-start justify-start w-full">
-            <label htmlFor="project-title">Project Title</label>
-            <input
-              id="project-title"
-              type="text"
-              className="outline-none border-border border px-2 py-1 w-full placeholder:font-caveat"
-              placeholder="Project Title"
-              value={values.title}
-              onChange={(e) => setValues({ ...values, title: e.target.value })}
             />
           </div>
           <div className="flex flex-col gap-2 items-start justify-start w-full">
@@ -129,14 +106,3 @@ const CreateProject = () => {
   );
 };
 export default CreateProject;
-
-
-
-
-
-
-
-
-
-
-

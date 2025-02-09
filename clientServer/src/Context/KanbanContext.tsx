@@ -1,14 +1,14 @@
 import React, { createContext, useContext, useState, ReactNode } from "react";
-import { ProjectType, CardListType, CardType } from "../types";
+import { ProjectType, WorkFlowListType, TicketType } from "../types";
 import { mockData } from "../mock";
 
 
 interface KanbanContextType {
   projects: ProjectType[];
   reorderLists: (projectIndex: number, sourceIndex: number, destinationIndex: number) => void;
-  reorderCards: (projectIndex: number, sourceListIndex: number, destinationListIndex: number, sourceIndex: number, destinationIndex: number) => void;
-  addListToProject: (projectIndex: number, newList: CardListType) => void;
-  addCardToList: (projectIndex: number, listIndex: number, newCard: CardType) => void;
+  reorderTickets: (projectIndex: number, sourceListIndex: number, destinationListIndex: number, sourceIndex: number, destinationIndex: number) => void;
+  addListToProject: (projectIndex: number, newList: WorkFlowListType) => void;
+  addTicketToList: (projectIndex: number, listIndex: number, newCard: TicketType) => void;
 }
 
 const KanbanContext = createContext<KanbanContextType | undefined>(undefined);
@@ -24,7 +24,7 @@ export const KanbanProvider: React.FC<{ children: ReactNode }> = ({ children }) 
     setProjects(updatedProjects);
   };
 
-  const reorderCards = (projectIndex: number, sourceListIndex: number, destinationListIndex: number, sourceIndex: number, destinationIndex: number) => {
+  const reorderTickets = (projectIndex: number, sourceListIndex: number, destinationListIndex: number, sourceIndex: number, destinationIndex: number) => {
     const updatedProjects = [...projects];
     const sourceList = updatedProjects[projectIndex].list[sourceListIndex];
     const destinationList = updatedProjects[projectIndex].list[destinationListIndex];
@@ -33,20 +33,20 @@ export const KanbanProvider: React.FC<{ children: ReactNode }> = ({ children }) 
     setProjects(updatedProjects);
   };
 
-  const addListToProject = (projectIndex: number, newList: CardListType) => {
+  const addListToProject = (projectIndex: number, newList: WorkFlowListType) => {
     const updatedProjects = [...projects];
     updatedProjects[projectIndex].list.push(newList);
     setProjects(updatedProjects);
   };
 
-  const addCardToList = (projectIndex: number, listIndex: number, newCard: CardType) => {
+  const addTicketToList = (projectIndex: number, listIndex: number, newTicket: TicketType) => {
     const updatedProjects = [...projects];
-    updatedProjects[projectIndex].list[listIndex].list.push(newCard);
+    updatedProjects[projectIndex].list[listIndex].list.push(newTicket);
     setProjects(updatedProjects);
   };
 
   return (
-    <KanbanContext.Provider value={{ projects, reorderLists, reorderCards, addListToProject, addCardToList }}>
+    <KanbanContext.Provider value={{ projects, reorderLists, reorderTickets, addListToProject, addTicketToList }}>
       {children}
     </KanbanContext.Provider>
   );

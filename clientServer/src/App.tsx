@@ -14,6 +14,8 @@ import RegisterModal from "./components/Auth/RegisterModal";
 import ChatRoom from "./pages/ChatRoom";
 import LoginModal from "./components/Auth/LoginModal";
 import ForgottenPass from "./components/ForgottenPass";
+import WelcomePage from "./pages/WelcomePage";
+
 
 const App = () => {
   const { dialogOpen, forgottenPassOpen } = useUser();
@@ -30,6 +32,7 @@ const App = () => {
           <Route path="/team/:teamId" element={<TeamTable />} />
           <Route path="/info" element={<ContactSupport />} />
           <Route path="/conversation" element={<ChatRoom />} />
+          <Route path="/welcome" element={<WelcomePage />} />
           <Route
             path="*"
             element={

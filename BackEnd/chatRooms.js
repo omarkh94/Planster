@@ -1,6 +1,6 @@
 const mongoose = require("mongoose");
-const {saveMessage,getMessagesByRoomId} = require("./Controllers/")
-const { Message } = require("./models/MessageSchema.js") 
+const {getMessagesByRoomId} = require("./Controllers/Messages.js")
+const Message = require("./models/MessageSchema.js") 
 let users = [];
 
 const pushNotifications = (notifiedUsers, message, io) => {
@@ -97,44 +97,55 @@ const getUser = (userId) => {
 
 
 
-  socket.on("SEND_MESSAGE", async ({ roomId, message, userId, from, mentions = [], replyTo = null }) => {
+  socket.on("SEND_MESSAGE", async ({ roomId, message, userId, from, mentions, replyTo }) => {
     if (!rooms[roomId]) {
-      rooms[roomId] = { messages: [], users: [], projectMembers: [] };
+        rooms[roomId] = { messages: [], users: [], projectMembers: [] };
     }
-
+    
+    console.log('Received message:', message);
+  
     const usersInRoom = rooms[roomId].users || [];
     const projectMembers = rooms[roomId].projectMembers || [];
     const notifiedUsers = projectMembers.filter(memberId => !usersInRoom.includes(memberId));
-
+  
     try {
-      const savedMessage = await saveMessage({
-        content: message,
-        senderId: userId,
-        roomId,
-        mentions,
-        replyTo
-      });
-
-      const newMessage = {
+      const messageData = {
+        sender: userId ? new mongoose.Types.ObjectId(userId) : undefined,  
+        chatRoomId: roomId ? new mongoose.Types.ObjectId(roomId) : undefined, 
+        content: message || "",     
+        mentions: mentions || [],    
+        replyTo: replyTo || []       
+      };
+  
+      const newMessage = new Message(messageData);
+      
+      const savedMessage = await newMessage.save();
+  
+      const broadcastMessage = {
         id: savedMessage._id.toString(),
         content: savedMessage.content,
         sender: { id: savedMessage.sender, name: from },
         chatRoomId: savedMessage.chatRoomId,
         mentions: savedMessage.mentions,
-        replies: savedMessage.replies,
+        replies: savedMessage.replyTo,
         seenBy: [],
         deliveredTo: usersInRoom,
         notifiedUsers,
         timestamp: savedMessage.timestamp,
       };
-
-      rooms[roomId].messages.push(newMessage);
-      pushNotifications(notifiedUsers, newMessage, io);
-      io.to(roomId).emit("RECEIVE_MESSAGE", newMessage);
+  
+      rooms[roomId].messages.push(broadcastMessage);
+  
+      pushNotifications(notifiedUsers, broadcastMessage, io);
+  
+      io.to(roomId).emit("RECEIVE_MESSAGE", broadcastMessage);
     } catch (error) {
-      console.error("❌: Error While Saving Messages", error);
+      console.error("❌: Error While Saving Message", error);
     }
   });
+
+
+  
 
 
 
