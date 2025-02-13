@@ -4,9 +4,21 @@ import { loginSchema, LoginSchema } from "@/schemas/LoginSchema";
 import { useAuthStore } from "@/store/useAuthStore";
 import { useUser } from "@/store/UserStore";
 import { zodResolver } from "@hookform/resolvers/zod";
+import axios from "axios";
 import { RotateCcw, Send, UserPlus } from "lucide-react";
 import { useForm, FormProvider } from "react-hook-form";
+import { jwtDecode } from "jwt-decode";
+import { useState } from "react";
+
+interface DecodedToken {
+  userId: string;
+  exp?: number;
+}
+
 const LoginModal = () => {
+  const [loading, setLoading] = useState(false);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
+
   const methods = useForm<LoginSchema>({
     resolver: zodResolver(loginSchema),
     mode: "onChange",
@@ -14,14 +26,50 @@ const LoginModal = () => {
   const { setLoginModalOpen, setRegisterModalOpen } = useAuthStore();
   const { setIsLoggedIn, setForgottenPassOpen } = useUser();
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const onSubmit: any = (values: LoginSchema) => {
-    console.log("values :>> ", values);
-    setIsLoggedIn(true);
+  const onSubmit = async (values: LoginSchema) => {
+    setLoading(true);
+    setErrorMessage(null);
+    try {
+      const response = await axios.post(
+        `${import.meta.env.VITE_APP_API_URL}/users/login`,
+        values
+      );
 
+      const token = response.data.token;
+      if (!token) {
+        console.log("token :>> ", "token not received from server");
+        setErrorMessage(
+          "Login Failed: Check Your Email Or Password And Try Again"
+        );
+      }
+
+      try {
+        const decodedToken = jwtDecode<DecodedToken>(token);
+        if (!decodedToken.userId) {
+          console.log("userId missing. :>> ", "userId missing.");
+          setErrorMessage(
+            " Login Error: Check Your Email Or Password And Try Again"
+          );
+        }
+
+        localStorage.setItem("userId", decodedToken.userId);
+        localStorage.setItem("authToken", token);
+        setLoginModalOpen(false);
+        setIsLoggedIn(true);
+      } catch (decodeError) {
+        console.log("decodeError :>> ", decodeError);
+
+        setErrorMessage(`Error decoding token: ${decodeError}`);
+      }
+    } catch (error) {
+      console.log("error :>> ", error);
+      setErrorMessage(
+        `Login Error: Check Your Email Or Password And Try Again .`
+      );
+    }
+    setLoading(false);
     if (Object.keys(methods.formState.errors).length === 0) {
       methods.reset();
-      setLoginModalOpen(false);
     }
   };
 
@@ -35,6 +83,7 @@ const LoginModal = () => {
       <div className="    z-20 flex flex-col gap-4 items-center justify-center w-full font-glory ">
         <div className="flex flex-col gap-4 items-center justify-center p-6 md:p-8 w-full ">
           <h1 className="text-3xl font-bold">Login</h1>
+          {errorMessage && <div className="text-red-500">{errorMessage}</div>}
           <FormProvider {...methods}>
             <form
               onSubmit={methods.handleSubmit(onSubmit)}
@@ -71,14 +120,14 @@ const LoginModal = () => {
                 <button
                   className="flex flex-row gap-2 items-center bg-primary border border-border px-4 py-2 text-white font-semibold"
                   type="submit"
-                  onClick={methods.handleSubmit(onSubmit)}
+                  disabled={loading}
                   autoFocus
                 >
                   <Send
                     className="h-4 w-4 mr-2 text-secondary"
                     strokeWidth={3}
                   />
-                  Confirm
+                  {loading ? "Updating..." : "Confirm"}
                 </button>
                 <button
                   onClick={() => {

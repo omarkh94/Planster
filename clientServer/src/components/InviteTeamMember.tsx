@@ -35,6 +35,7 @@ const InviteTeamMember = ({
     }
   };
   return (
+    
     <ModalWithChildren onClose={() => setTeamModalOpen(false)} size="small">
       <div className="flex flex-col p-4 justify-between items-center font-glory gap-5">
         <h1 className="font-semibold">Invite Team Member</h1>

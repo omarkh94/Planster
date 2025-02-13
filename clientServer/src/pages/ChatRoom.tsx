@@ -9,6 +9,7 @@ import MemberChatCard from "@/components/MemberChatCard";
 import { projects } from "@/mock";
 import InviteTeamMember from "@/components/InviteTeamMember";
 
+
 const ChatRoom = () => {
   const socketRef = useRef<Socket | null>(null);
   const [messages, setMessages] = useState<MessageType[]>([]);
@@ -18,11 +19,12 @@ const ChatRoom = () => {
   const [teamModalOpen, setTeamModalOpen] = useState(false);
 
   useEffect(() => {
-    const roomId = localStorage.getItem("projectId");
+    
+    const roomId = localStorage.getItem("authToken");
     const userId = localStorage.getItem("userId");
   
     if (roomId && userId) {
-      socketRef.current = io(import.meta.env.VITE_APP_SOCKET_SERVER);
+      socketRef.current = io(import.meta.env.VITE_APP_API_URL);
       socketRef.current.connect();
   
       socketRef.current.emit("JOIN_ROOM", { roomId, userId });

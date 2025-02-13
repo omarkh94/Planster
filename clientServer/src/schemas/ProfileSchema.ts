@@ -10,7 +10,10 @@ const profileSchema = z.object({
     .string()
     .nonempty("Last name is required")
     .min(2, "Last name must be at least 2 characters long"),
-
+    jobTitle: z
+    .string()
+    .nonempty("Job Title is required")
+    .min(2, "Job Title must be at least 2 characters long"),
   email: z.string().readonly(),
 
   mobileNumber: z.object({

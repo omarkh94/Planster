@@ -1,5 +1,6 @@
 import { useNavigate } from "react-router-dom";
 import { useUser } from "../store/UserStore";
+import { ListRestart , ListX } from "lucide-react";
 const Projects = () => {
   const navigate = useNavigate();
   const { projects, setDialogOpen } = useUser();
@@ -73,14 +74,29 @@ const Projects = () => {
                           </td>
                           <td className=" w-[12%] px-2">
                             <div className="flex flex-col py-2 gap-2">
-                              <button className="bg-background text-white border border-border  p-2 outline-none"
-                              onClick={()=>{}}
+                              <button
+                                className="flex flex-row items-center gap-2 bg-secondary text-primary border py-1 px-3 border-border  p-2 outline-none font-semibold"
+                                onClick={() => {}}
                               >
-                                Update
+                                <ListRestart
+                                  className="h-5.5 w-5.5 mr-0 lg:mr-2 text-primary"
+                                  strokeWidth={3}
+                                />
+                                <span className="hidden px-1 lg:flex">
+                                  Update
+                                </span>
                               </button>
-                              <button className="bg-lightError text-white border border-border  p-2 outline-none"
-                              onClick={()=>{}}>
-                                Delete
+                              <button
+                                className="flex flex-row items-center gap-2 bg-danger text-secondary border py-1 px-3 border-border  p-2 outline-none font-semibold"
+                                onClick={() => {}}
+                              >
+                                <ListX 
+                                  className="h-5.5 w-5.5 mr-0 lg:mr-2 text-secondary"
+                                  strokeWidth={3}
+                                />
+                                <span className="hidden px-1 lg:flex">
+                                  Delete
+                                </span>
                               </button>
                             </div>
                           </td>

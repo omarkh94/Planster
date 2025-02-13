@@ -21,7 +21,6 @@ const App = () => {
   const { dialogOpen, forgottenPassOpen } = useUser();
   const { registerModalOpen, loginModalOpen , profileModalOpen } = useAuthStore();
   // const userId = localStorage.getItem("userId")
-  const userId = "67a35b4d278aa17859d83045"
   return (
     <KanbanProvider>
       <NavLayout>
@@ -44,7 +43,7 @@ const App = () => {
         </Routes>
         {dialogOpen && <CreateProject />}
         {registerModalOpen && <RegisterModal />}
-        {profileModalOpen && <Profile userId={userId ?? ""} />}
+        {profileModalOpen && <Profile  />}
         {loginModalOpen && <LoginModal />}
         {forgottenPassOpen && <ForgottenPass />}
       </NavLayout>

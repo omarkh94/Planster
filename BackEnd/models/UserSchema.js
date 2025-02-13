@@ -1,13 +1,27 @@
 const mongoose = require('mongoose');
 const bcrypt = require("bcrypt")
 
+const jobTitles = [
+  "Frontend Developer",
+  "Backend Developer",
+  "Full Stack Developer",
+  "Software Engineer",
+  "UI/UX Developer",
+  "Web Developer",
+  "Mobile App Developer",
+  "DevOps Engineer",
+  "Cloud Engineer",
+  "API Developer"
+];
+
 
 const UserSchema = new mongoose.Schema(
     {
         firstName: { type: String, required: true },
         lastName: { type: String, required: true },
-        email: { type: String, required: true, unique: true, lowercase: true }, 
-        phoneNumber: { type: Number, required: true },
+        email: { type: String, required: true, unique: true, lowercase: true },
+        jobTitle: { type: String, enum: jobTitles, required: true },
+        phoneNumber: { type: String, required: true },
         projects: [
             {
               project: { type: mongoose.Schema.Types.ObjectId, ref: 'Project' },

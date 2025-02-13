@@ -18,11 +18,21 @@ export interface UserType extends BaseEntity {
   firstName: string;
   lastName: string;
   email: string;
-  formattedPhoneNumber: string;
+  phoneNumber: string;
   projects: project;
   password: string;
   team: TeamType;
-  jobTitle: "Front-end dev" | "Back-end dev";
+  jobTitle:
+    | "Frontend Developer"
+    | "Backend Developer"
+    | "Full Stack Developer"
+    | "Software Engineer"
+    | "UI/UX Developer"
+    | "Web Developer"
+    | "Mobile App Developer"
+    | "DevOps Engineer"
+    | "Cloud Engineer"
+    | "API Developer";
 }
 export interface Role extends BaseEntity {
   role: "admin" | "supervisor" | "member";

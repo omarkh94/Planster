@@ -31,8 +31,19 @@ const getAllUsers = async (req, res) => {
 
 const register = async (req, res) => {
     try {
-        const { name, lastName, phoneNumber, projects, gender, email, password, team } = req.body
-        const user = new usersModel({ name, lastName, phoneNumber, projects, gender, email, password, team })
+        const { firstName, lastName, phoneNumber, jobTitle, projects, gender, email, password, team } = req.body
+        const user = new usersModel({ firstName, lastName, jobTitle, phoneNumber, projects, gender, email, password, team })
+
+
+        const existingUser = await usersModel.findOne({ email: email.toLowerCase() });
+
+        if (existingUser) {
+            return res.status(400).json({
+                success: true,
+                message: 'Email already exists',
+                data: result
+            });
+        }
         const result = await user.save()
 
         res.status(201).json({
@@ -57,10 +68,9 @@ const register = async (req, res) => {
 const login = async (req, res) => {
     try {
         const { email, password } = req.body
-        const projectIds = await projectModel.find({ "members.users.email": email }).select('_id');
         const result = await usersModel.find({
-            email: email
-        }).populate('projects');
+            email: email.toLowerCase()
+        });
         if (result?.length > 0) {
             const [user] = result
             bcrypt.compare(password, user?.password, (err, result) => {
@@ -70,15 +80,13 @@ const login = async (req, res) => {
                         message: 'Email or password incorrect',
                     });
                 }
-                const projectIds = user.projects.map(p => p.project._id);
                 if (result) {
                     const payload = {
                         userId: user._id,
-                        userName: user.username,
-                        projectIds,
+                        email: user.email,
                     }
 
-                    const token = jwt.sign(payload, process.env.SECRET, { expiresIn: '7d' });
+                    const token = jwt.sign(payload, process.env.SECRET, { expiresIn: '1d' });
                     res.status(200).json({
                         success: true,
                         message: 'Logged In successful',
@@ -110,6 +118,31 @@ const login = async (req, res) => {
     }
 }
 
+const getMemberById = async (req, res) => {
+    try {
+        const { userId } = req.params;
+
+        const member = await usersModel.findOne({ _id: userId, isDeleted: false });
+
+        if (!member) {
+            return res.status(404).json({
+                success: false,
+                message: "Member not found",
+            });
+        }
+
+        res.status(200).json({
+            success: true,
+            message: "Member retrieved successfully",
+            data: member,
+        });
+    } catch (error) {
+        res.status(500).json({
+            success: false,
+            message: error.message,
+        });
+    }
+};
 
 
 
@@ -138,13 +171,36 @@ const getUsersByTeam = async (req, res) => {
 const modifyProfile = async (req, res) => {
     try {
         const { userId } = req.params;
-        const updateData = req.body;
-        const updatedUser = await usersModel.findByIdAndUpdate(userId, updateData, { new: true });
-        res.status(200).json({ success: true, message: 'Profile updated successfully', data: updatedUser });
+        const updatedData = req.body;
+
+        if (updatedData.password) {
+            const salt = await bcrypt.genSalt(parseInt(process.env.SALT));
+            updatedData.password = await bcrypt.hash(updatedData.password, salt);
+        }
+
+        const updatedUser = await usersModel.findByIdAndUpdate(userId, updatedData, { new: true });
+
+        if (!updatedUser) {
+            return res.status(404).json({
+                success: false,
+                message: 'User not found',
+            });
+        }
+
+        res.status(200).json({
+            success: true,
+            message: 'Profile updated successfully',
+            data: updatedUser,
+        });
     } catch (error) {
-        res.status(500).json({ success: false, message: error.message });
+        res.status(500).json({
+            success: false,
+            message: error.message,
+        });
     }
 };
+
+
 
 
 
@@ -282,7 +338,7 @@ const addUserToProject = async (req, res) => {
 
 
 
-module.exports = { register, login, getAllUsers, getUsersByTeam, modifyProfile, deleteProfile, removeMemberFromProject, moveOrRemoveMemberFromTeam, addUserToTeam };
+module.exports = { register, getMemberById, login, getAllUsers, getUsersByTeam, modifyProfile, deleteProfile, removeMemberFromProject, moveOrRemoveMemberFromTeam, addUserToTeam };
 
 
 

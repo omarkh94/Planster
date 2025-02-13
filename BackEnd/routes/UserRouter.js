@@ -10,7 +10,8 @@ const {
     deleteProfile,
     removeMemberFromProject,
     moveOrRemoveMemberFromTeam,
-    addUserToTeam
+    addUserToTeam,
+    getMemberById
 } = require("../Controllers/User");
 
 const authentication = require('../middleWares/authentication');
@@ -22,7 +23,8 @@ UserRouter.post('/login', login);
 
 // Profile Routes
 UserRouter.get('/', authentication, authorization("SHOW_USERS"), getAllUsers);
-UserRouter.put('/profile/:id', authentication, authorization("UPDATE_PROFILE"), modifyProfile);
+UserRouter.get('/:userId', getMemberById);
+UserRouter.put('/profile/:userId', authentication,  modifyProfile);
 UserRouter.delete('/profile/:id', authentication, authorization("DELETE_PROFILE"), deleteProfile);
 
 // Team Routes

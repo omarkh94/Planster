@@ -14,11 +14,13 @@ import {
 
 export const mockRoles: Role[] = [
   { id: "r1", role: "admin", permissions: ["manage_users", "edit_projects"] },
-  { id: "r2", role: "supervisor", permissions: ["view_reports", "manage_team"] },
+  {
+    id: "r2",
+    role: "supervisor",
+    permissions: ["view_reports", "manage_team"],
+  },
   { id: "r3", role: "member", permissions: ["view_projects"] },
 ];
-
-
 
 export const mockUsers: UserType[] = [
   {
@@ -46,7 +48,7 @@ export const mockUsers: UserType[] = [
     },
     password: "securepassword",
     team: {} as TeamType,
-    jobTitle: "Back-end dev",
+    jobTitle: "Cloud Engineer",
     isDeleted: false,
     createdAt: new Date(),
     updatedAt: new Date(),
@@ -60,7 +62,7 @@ export const mockUsers: UserType[] = [
     projects: {} as project,
     password: "securepassword",
     team: {} as TeamType,
-    jobTitle: "Back-end dev",
+    jobTitle: "Full Stack Developer",
     isDeleted: false,
     createdAt: new Date(),
     updatedAt: new Date(),
@@ -74,7 +76,7 @@ export const mockUsers: UserType[] = [
     projects: {} as project,
     password: "anotherpassword",
     team: {} as TeamType,
-    jobTitle: "Front-end dev",
+    jobTitle: "UI/UX Developer",
     isDeleted: false,
     createdAt: new Date(),
     updatedAt: new Date(),
@@ -104,7 +106,7 @@ export const mockUsers: UserType[] = [
     },
     password: "anotherpassword",
     team: {} as TeamType,
-    jobTitle: "Back-end dev",
+    jobTitle: "Cloud Engineer",
     isDeleted: false,
     createdAt: new Date(),
     updatedAt: new Date(),
@@ -118,53 +120,54 @@ export const mockUsers: UserType[] = [
     projects: {} as project,
     password: "password123",
     team: {} as TeamType,
-    jobTitle: "Back-end dev",
+    jobTitle: "API Developer",
     isDeleted: false,
     createdAt: new Date(),
     updatedAt: new Date(),
   },
 ];
 
-export const mockComments: CommentType[] = [  {
-  id: "c3",
-  description: "This feature is working well, but could be faster.",
-  commenter: mockUsers[2],
-  isDeleted: false,
-  createdAt: new Date(),
-  updatedAt: new Date(),
-},
-{
-  id: "c4",
-  description: "Please add a dark mode option.",
-  commenter: mockUsers[3],
-  isDeleted: false,
-  createdAt: new Date(),
-  updatedAt: new Date(),
-},
-{
-  id: "c5",
-  description: "Any update on the status of this bug?",
-  commenter: mockUsers[4],
-  isDeleted: false,
-  createdAt: new Date(),
-  updatedAt: new Date(),
-},
-{
-  id: "c6",
-  description: "The UI is much cleaner now, nice work!",
-  commenter: mockUsers[0],
-  isDeleted: false,
-  createdAt: new Date(),
-  updatedAt: new Date(),
-},
-{
-  id: "c7",
-  description: "Can you clarify the requirements for this task?",
-  commenter: mockUsers[1],
-  isDeleted: false,
-  createdAt: new Date(),
-  updatedAt: new Date(),
-},
+export const mockComments: CommentType[] = [
+  {
+    id: "c3",
+    description: "This feature is working well, but could be faster.",
+    commenter: mockUsers[2],
+    isDeleted: false,
+    createdAt: new Date(),
+    updatedAt: new Date(),
+  },
+  {
+    id: "c4",
+    description: "Please add a dark mode option.",
+    commenter: mockUsers[3],
+    isDeleted: false,
+    createdAt: new Date(),
+    updatedAt: new Date(),
+  },
+  {
+    id: "c5",
+    description: "Any update on the status of this bug?",
+    commenter: mockUsers[4],
+    isDeleted: false,
+    createdAt: new Date(),
+    updatedAt: new Date(),
+  },
+  {
+    id: "c6",
+    description: "The UI is much cleaner now, nice work!",
+    commenter: mockUsers[0],
+    isDeleted: false,
+    createdAt: new Date(),
+    updatedAt: new Date(),
+  },
+  {
+    id: "c7",
+    description: "Can you clarify the requirements for this task?",
+    commenter: mockUsers[1],
+    isDeleted: false,
+    createdAt: new Date(),
+    updatedAt: new Date(),
+  },
   {
     id: "c1",
     description: "Great job on the latest update!",
@@ -211,7 +214,8 @@ export const mockTickets: TicketType[] = [
     isDeleted: false,
     createdAt: new Date(),
     updatedAt: new Date(),
-  },{
+  },
+  {
     id: "tk3",
     title: "Update User Profile Picture Upload",
     description: "Enable users to upload profile pictures in high resolution.",
@@ -270,7 +274,8 @@ export const mockTickets: TicketType[] = [
   {
     id: "tk7",
     title: "Fix Email Notification Bug",
-    description: "Some users are not receiving email notifications for updates.",
+    description:
+      "Some users are not receiving email notifications for updates.",
     status: {} as WorkFlowListType,
     author: mockUsers[4],
     assignee: mockUsers[2],
@@ -283,61 +288,62 @@ export const mockTickets: TicketType[] = [
   },
 ];
 
-export const mockWorkFlowLists: WorkFlowListType[] = [{
-  id: "wf3",
-  title: "Ready for QA",
-  project: {} as ProjectType,
-  author: mockUsers[3],
-  list: [mockTickets[2], mockTickets[3]],
-  updatedBy: mockUsers[4],
-  isDeleted: false,
-  createdAt: new Date(),
-  updatedAt: new Date(),
-},
-{
-  id: "wf4",
-  title: "Code Review",
-  project: {} as ProjectType,
-  author: mockUsers[1],
-  list: [mockTickets[4], mockTickets[5]],
-  updatedBy: mockUsers[0],
-  isDeleted: false,
-  createdAt: new Date(),
-  updatedAt: new Date(),
-},
-{
-  id: "wf5",
-  title: "QA In Progress",
-  project: {} as ProjectType,
-  author: mockUsers[4],
-  list: [mockTickets[6]],
-  updatedBy: mockUsers[2],
-  isDeleted: false,
-  createdAt: new Date(),
-  updatedAt: new Date(),
-},
-{
-  id: "wf6",
-  title: "Deployed",
-  project: {} as ProjectType,
-  author: mockUsers[0],
-  list: mockTickets,
-  updatedBy: mockUsers[1],
-  isDeleted: false,
-  createdAt: new Date(),
-  updatedAt: new Date(),
-},
-{
-  id: "wf7",
-  title: "Backlog",
-  project: {} as ProjectType,
-  author: mockUsers[2],
-  list: mockTickets,
-  updatedBy: mockUsers[3],
-  isDeleted: false,
-  createdAt: new Date(),
-  updatedAt: new Date(),
-},
+export const mockWorkFlowLists: WorkFlowListType[] = [
+  {
+    id: "wf3",
+    title: "Ready for QA",
+    project: {} as ProjectType,
+    author: mockUsers[3],
+    list: [mockTickets[2], mockTickets[3]],
+    updatedBy: mockUsers[4],
+    isDeleted: false,
+    createdAt: new Date(),
+    updatedAt: new Date(),
+  },
+  {
+    id: "wf4",
+    title: "Code Review",
+    project: {} as ProjectType,
+    author: mockUsers[1],
+    list: [mockTickets[4], mockTickets[5]],
+    updatedBy: mockUsers[0],
+    isDeleted: false,
+    createdAt: new Date(),
+    updatedAt: new Date(),
+  },
+  {
+    id: "wf5",
+    title: "QA In Progress",
+    project: {} as ProjectType,
+    author: mockUsers[4],
+    list: [mockTickets[6]],
+    updatedBy: mockUsers[2],
+    isDeleted: false,
+    createdAt: new Date(),
+    updatedAt: new Date(),
+  },
+  {
+    id: "wf6",
+    title: "Deployed",
+    project: {} as ProjectType,
+    author: mockUsers[0],
+    list: mockTickets,
+    updatedBy: mockUsers[1],
+    isDeleted: false,
+    createdAt: new Date(),
+    updatedAt: new Date(),
+  },
+  {
+    id: "wf7",
+    title: "Backlog",
+    project: {} as ProjectType,
+    author: mockUsers[2],
+    list: mockTickets,
+    updatedBy: mockUsers[3],
+    isDeleted: false,
+    createdAt: new Date(),
+    updatedAt: new Date(),
+  },
   {
     id: "wf1",
     title: "To Do",
@@ -379,17 +385,15 @@ export const mockTeams: TeamType[] = [
     isDeleted: false,
     createdAt: new Date(),
     updatedAt: new Date(),
-  }
+  },
 ];
-
-
 
 export const projects: ProjectType[] = [
   {
     id: "101",
     title: "Project Alpha",
     description: "A sample project for testing",
-    teams: [mockTeams[0], mockTeams[1]], 
+    teams: [mockTeams[0], mockTeams[1]],
     projectOwner: mockUsers[0],
     expectedDeadLine: new Date(),
     members: [
@@ -432,11 +436,11 @@ export const projects: ProjectType[] = [
         },
       },
     ],
-    list: [mockWorkFlowLists[0],mockWorkFlowLists[1]],
+    list: [mockWorkFlowLists[0], mockWorkFlowLists[1]],
     isDeleted: false,
     createdAt: new Date(),
     updatedAt: new Date(),
-  }
+  },
 ];
 
 export const mockMessages: MessageType[] = [

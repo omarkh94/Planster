@@ -5,6 +5,7 @@ import { countries } from "@/mock";
 import { registerSchema, RegisterSchema } from "@/schemas/RegisterSchema";
 import { useAuthStore } from "@/store/useAuthStore";
 import { zodResolver } from "@hookform/resolvers/zod";
+import axios from "axios";
 import { KeyRound, Send } from "lucide-react";
 import { useForm, FormProvider } from "react-hook-form";
 const RegisterModal = () => {
@@ -18,16 +19,48 @@ const RegisterModal = () => {
       },
     },
   });
-  const { setRegisterModalOpen , setLoginModalOpen} = useAuthStore();
+  const { setRegisterModalOpen, setLoginModalOpen } = useAuthStore();
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const onSubmit: any = (values: RegisterSchema) => {
+  const onSubmit: any = async (values: RegisterSchema) => {
     const { countryCode, number } = values.mobileNumber;
     const formattedPhoneNumber = `${countryCode}-${number}`;
-
     const submitData = {
       ...values,
-      mobileNumber: formattedPhoneNumber,  
+      phoneNumber: formattedPhoneNumber,
+      firstName: values.name,
+      projects: [],
     };
+    console.log("submitData :>> ", submitData);
+    try {
+      const response = await axios.post(
+        `${import.meta.env.VITE_APP_API_URL}/users/register`,
+        submitData
+      );
+      alert("Registration successful! Please log in.");
+      
+      console.log('submitData :>> ', submitData);
+      // Reset the form
+      methods.reset();
+      setRegisterModalOpen(false);
+      setLoginModalOpen(true);
+      console.log("response :>> ", response);
+    } catch (error) {
+      console.log("error :>> ", error);
+      if (axios.isAxiosError(error) && error.response) {
+        const { message } = error.response.data;
+
+        if (message.includes("Email already exists")) {
+          methods.setError("email", {
+            type: "manual",
+            message: "Email already in use",
+          });
+        } else {
+          alert(message || "Something went wrong, please try again.");
+        }
+      } else {
+        alert("Network error, please try again.");
+      }
+    }
 
     console.log("Formatted Values to Submit: ", submitData);
 
@@ -94,13 +127,24 @@ const RegisterModal = () => {
                   labelClass="uppercase"
                   options={[
                     {
-                      label: "Front-end dev",
-                      value: "frontend",
+                      label: "Frontend Developer",
+                      value: "Frontend Developer",
                     },
+                    { label: "Backend Developer", value: "Backend Developer" },
                     {
-                      label: "Back-end dev",
-                      value: "backend",
+                      label: "Full Stack Developer",
+                      value: "Full Stack Developer",
                     },
+                    { label: "Software Engineer", value: "Software Engineer" },
+                    { label: "UI/UX Developer", value: "UI/UX Developer" },
+                    { label: "Web Developer", value: "Web Developer" },
+                    {
+                      label: "Mobile App Developer",
+                      value: "Mobile App Developer",
+                    },
+                    { label: "DevOps Engineer", value: "DevOps Engineer" },
+                    { label: "Cloud Engineer", value: "Cloud Engineer" },
+                    { label: "API Developer", value: "API Developer" },
                   ]}
                 />
               </div>
@@ -153,8 +197,10 @@ const RegisterModal = () => {
                   onClick={methods.handleSubmit(onSubmit)}
                   autoFocus
                 >
-                  <Send  className="h-4 w-4 mr-2 text-secondary"
-          strokeWidth={3} />
+                  <Send
+                    className="h-4 w-4 mr-2 text-secondary"
+                    strokeWidth={3}
+                  />
                   Confirm
                 </button>
               </div>
@@ -164,16 +210,13 @@ const RegisterModal = () => {
         <div className="w-full h-full flex items-center justify-center gap-6 md:gap-12 flex-col md:flex-row p-4 md:p-8">
           <p className="text-black"> Already Have An Account?</p>
           <button
-           onClick={() => {
-             setRegisterModalOpen(false)
-             setLoginModalOpen(true)
-            
-          }}  
+            onClick={() => {
+              setRegisterModalOpen(false);
+              setLoginModalOpen(true);
+            }}
             className="flex flex-row gap-2 items-center bg-primary border border-border px-4 py-2 text-white font-semibold"
-          ><KeyRound
-          className="h-4 w-4 mr-2 text-secondary"
-          strokeWidth={3}
-        />
+          >
+            <KeyRound className="h-4 w-4 mr-2 text-secondary" strokeWidth={3} />
             Login
           </button>
         </div>

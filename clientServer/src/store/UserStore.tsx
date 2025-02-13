@@ -5,8 +5,6 @@ import { projects as mockProjects } from "../mock";
 type Store = {
   collapsed: boolean;
   setCollapsed: () => void;
-  isLoggedIn: boolean;
-  setIsLoggedIn: (state: boolean) => void;
   open: boolean;
   setOpen: () => void;
   dialogOpen: boolean;
@@ -17,13 +15,19 @@ type Store = {
   setProjects: (project: ProjectType[]) => void;
   forgottenPassOpen: boolean;
   setForgottenPassOpen: (state: boolean) => void;
+  isLoggedIn: boolean;
+  setIsLoggedIn: (IsLoggedIn: boolean) => void;
 };
 
 export const useUser = create<Store>()((set) => ({
   collapsed: true,
   setCollapsed: () => set((store) => ({ collapsed: !store.collapsed })),
-  isLoggedIn: false,
-  setIsLoggedIn: (state) => set(() => ({ isLoggedIn: state })),
+  isLoggedIn: localStorage.getItem("isLoggedIn") === "true" ? true : false,
+  setIsLoggedIn: (isLoggedIn) =>
+    set(() => {
+      localStorage.setItem("isLoggedIn", JSON.stringify(isLoggedIn));
+      return { isLoggedIn: isLoggedIn };
+    }),
   open: false,
   setOpen: () => set((store) => ({ open: !store.open })),
   dialogOpen: false,

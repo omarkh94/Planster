@@ -90,12 +90,9 @@ const getCommentByCommenter = async (req, res) => {
 const modifyCommentByCommenter = async (req, res) => {
     try {
         const { commentId } = req.params;
-        console.log('commentId :>> ', commentId);
         const { description } = req.body;
-        console.log('description :>> ', description);
 
         const comment = await CommentsModel.findById(commentId).exec();
-        console.log('comment :>> ', comment);
 
         if (!comment) {
             return res.status(404).json({

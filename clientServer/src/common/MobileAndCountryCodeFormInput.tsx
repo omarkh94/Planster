@@ -22,12 +22,14 @@ export const MobileAndCountryCodeFormInput = ({
   errors,
   trigger,
   className,
+  autocomplete,
 }: {
   onChange: (name: string, value: string) => void;
   values: (name: string) => string;
   errors: FieldErrors<MobileAndCountry>;
   trigger: (name: string) => void;
   className?: string;
+  autocomplete?: string;
 }) => {
   return (
     <div
@@ -82,6 +84,7 @@ export const MobileAndCountryCodeFormInput = ({
           className={`  text-black min-h-12 border-none
             text-start placeholder:
             `}
+            autoComplete={autocomplete}
         />
       </div>
       {errors?.mobileNumber?.number ? (

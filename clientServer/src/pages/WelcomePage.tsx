@@ -9,8 +9,7 @@ const WelcomePage = () => {
       </h1>
 
       <div
-        className="drop-shadow-xl grid grid-cols-3 gap-7 mt-6 w-full max-w-5xl"
-        style={{ gridTemplateColumns: "1fr 2fr 1fr" }}
+        className="drop-shadow-xl grid grid-cols-1 md:grid-cols-[1fr_2fr_1fr] gap-7 mt-6 w-full max-w-screen-lg px-4"
       >
         <p className="drop-shadow-xl text-2xl font-medium text-secondary p-4 bg-primary rounded-lg shadow-md">
           You're just moments away from taking full control of your projects and

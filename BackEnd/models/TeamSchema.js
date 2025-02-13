@@ -1,6 +1,19 @@
 const mongoose = require('mongoose');
 
 
+// const teamTitles = [
+//   "Engineering",
+//   "Product",
+//   "Design",
+//   "Marketing",
+//   "Sales",
+//   "Support",
+//   "HR",
+//   "Operations",
+//   "software",
+//   "Legal"
+// ];
+
 const TeamSchema = new mongoose.Schema(
     {
         name: { type: String, required: true, unique: true },
