@@ -40,7 +40,6 @@ const KanbanBoard: React.FC = () => {
         }
       );
       setProject(response?.data?.data);
-      console.log("response?.data?.data :>> ", response?.data?.data);
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (error: any) {
       setError(error?.message);

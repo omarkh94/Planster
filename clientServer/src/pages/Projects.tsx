@@ -82,8 +82,6 @@ const Projects = () => {
               </tr>
             ) : (
               projects.map((project: any) => {
-                console.log("project :>> ", project);
-
                 return !project.project?.isDeleted ? (
                   <tr key={project?._id} className="bg-white hover:bg-gray-100">
                     <td

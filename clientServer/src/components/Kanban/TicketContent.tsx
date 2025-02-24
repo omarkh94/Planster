@@ -25,7 +25,6 @@ const TicketContent = ({
 
   const handleAddComment = () => {
     if (comment.trim() === "") return;
-    console.log("comment", comment);
     setIsAddingComment(false);
     setComment("");
   };

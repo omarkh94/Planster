@@ -33,10 +33,8 @@ const RegisterModal = () => {
       projects: [],
     };
 
-    console.log("submitData :>> ", submitData);
-
     try {
-      const response = await axios.post(
+      await axios.post(
         `${import.meta.env.VITE_APP_API_URL}/users/register`,
         submitData
       );
@@ -45,8 +43,6 @@ const RegisterModal = () => {
         duration: 3000,
       });
 
-      console.log("submitData :>> ", submitData);
-
       methods.reset();
 
       setTimeout(() => {
@@ -54,9 +50,7 @@ const RegisterModal = () => {
         setLoginModalOpen(true);
       }, 3000);
 
-      console.log("response :>> ", response);
     } catch (error) {
-      console.log("error :>> ", error);
       if (axios.isAxiosError(error) && error.response) {
         const { message } = error.response.data;
 

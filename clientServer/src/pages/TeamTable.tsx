@@ -33,7 +33,6 @@ const TeamTable = () => {
           },
         }
       );
-      console.log("response.data.data :>> ", response.data.data);
       setTeams(response.data.data);
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (error: any) {

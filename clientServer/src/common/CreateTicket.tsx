@@ -34,7 +34,6 @@ const CreateTicket: React.FC<{
           },
         }
       );
-      console.log("response.data?.data :>> ", response.data?.data);
       setProject(response.data?.data);
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (error: any) {

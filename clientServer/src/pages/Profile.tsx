@@ -17,7 +17,6 @@ const Profile = () => {
   const [loading, setLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const userId = localStorage.getItem("userId");
-  console.log("User ID:", userId);
 
   useEffect(() => {
     const fetchUser = async () => {
@@ -86,7 +85,6 @@ const Profile = () => {
 
     try {
       const token = localStorage.getItem("authToken");
-      console.log("token :>> ", token);
       if (!token) {
         console.log("No token found.");
       }

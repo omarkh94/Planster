@@ -28,8 +28,7 @@ const InviteTeamMember = ({
       await axios.post("/api/invite", { email });
       setTeamModalOpen(false); 
     } catch (err) {
-      console.log('err :>> ', err);
-      setError("Failed to send invite. Please try again.");
+      setError(`Failed to send invite. Please try again. ${err}`);
     } finally {
       setLoading(false);
     }
