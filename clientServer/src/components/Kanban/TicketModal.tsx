@@ -1,9 +1,9 @@
 import ModalWithChildren from "@/common/ModalWithChildren";
 
 import { useProject } from "@/store/useProject";
-import CardContent from "./CardContent";
+import TicketContent from "./TicketContent";
 
-const CardModal = ({
+const TicketModal = ({
   onUpdateDescription,
 }: {
   onUpdateDescription?: (newDescription: string) => void;
@@ -22,12 +22,12 @@ const CardModal = ({
       }}
       size="large"
     >
-      <CardContent
-        card={selectedCard}
+      <TicketContent
+        ticket={selectedCard}
         onUpdateDescription={onUpdateDescription}
       />
     </ModalWithChildren>
   );
 };
 
-export default CardModal;
+export default TicketModal;

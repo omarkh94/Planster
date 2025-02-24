@@ -28,7 +28,8 @@ const NavLayout = ({ children }: { children: React.ReactNode }) => {
 
  const handleLogout = ()=>{
   setIsLoggedIn(false);
-  localStorage.setItem("authToken", "");
+  localStorage.removeItem("authToken");
+  localStorage.removeItem("userId");
   navigate(`/`);
  }
 

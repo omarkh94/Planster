@@ -17,6 +17,23 @@ const getAllRoles = async (req, res) => {
         })
     }
 }
+const getRolesRole = async (req, res) => {
+    try {
+        const{role}=req.body
+        const roles = await RolesModel.find({role:role}).populate("role").exec();
+        res.status(200).json({
+            success: true,
+            message: "your Role",
+            data: roles
+        })
+    } catch (error) {
+        res.status(500).json({
+            success: false,
+            message: error.message,
+            
+        })
+    }
+}
 
 
 
@@ -99,4 +116,4 @@ const DeleteRole = async (req, res) => {
     }
 }
 
-module.exports = { createNewRole, getAllRoles,ModifyRole,DeleteRole }
+module.exports = { createNewRole,getRolesRole, getAllRoles,ModifyRole,DeleteRole }

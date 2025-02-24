@@ -38,7 +38,6 @@ const Profile = () => {
     fetchUser();
   }, [userId]);
   
-  console.log('`${import.meta.env.VITE_APP_API_URL}/users/${userId}` :>> ', `${import.meta.env.VITE_APP_API_URL}/users/${userId}`);
   const methods = useForm<ProfileSchema>({
     resolver: zodResolver(profileSchema),
     mode: "onChange",

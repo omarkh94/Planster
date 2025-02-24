@@ -9,6 +9,7 @@ import { RotateCcw, Send, UserPlus } from "lucide-react";
 import { useForm, FormProvider } from "react-hook-form";
 import { jwtDecode } from "jwt-decode";
 import { useState } from "react";
+import { toast } from "sonner";
 
 interface DecodedToken {
   userId: string;
@@ -29,44 +30,56 @@ const LoginModal = () => {
   const onSubmit = async (values: LoginSchema) => {
     setLoading(true);
     setErrorMessage(null);
+  
     try {
       const response = await axios.post(
         `${import.meta.env.VITE_APP_API_URL}/users/login`,
         values
       );
-
+  
       const token = response.data.token;
       if (!token) {
-        console.log("token :>> ", "token not received from server");
-        setErrorMessage(
-          "Login Failed: Check Your Email Or Password And Try Again"
-        );
+        setErrorMessage("Login Failed: Check Your Email Or Password And Try Again");
+        toast.error("Login failed", {
+          description: "Invalid email or password. Please try again.",
+        });
+        return;
       }
-
+  
       try {
         const decodedToken = jwtDecode<DecodedToken>(token);
         if (!decodedToken.userId) {
-          console.log("userId missing. :>> ", "userId missing.");
-          setErrorMessage(
-            " Login Error: Check Your Email Or Password And Try Again"
-          );
+          setErrorMessage("Login Error: Check Your Email Or Password And Try Again");
+          toast.error("Login error", {
+            description: "Something went wrong while verifying your account.",
+          });
+          return;
         }
-
+  
         localStorage.setItem("userId", decodedToken.userId);
         localStorage.setItem("authToken", token);
         setLoginModalOpen(false);
         setIsLoggedIn(true);
+  
+        // Success toast
+        toast.success("Login successful", {
+          description: "Welcome back!",
+        });
+  
       } catch (decodeError) {
-        console.log("decodeError :>> ", decodeError);
-
         setErrorMessage(`Error decoding token: ${decodeError}`);
+        toast.error("Token error", {
+          description: "Failed to verify user identity.",
+        });
       }
     } catch (error) {
-      console.log("error :>> ", error);
-      setErrorMessage(
-        `Login Error: Check Your Email Or Password And Try Again .`
-      );
+      console.error("Login error:", error);
+      setErrorMessage("Login Error: Check Your Email Or Password And Try Again.");
+      toast.error("Login failed", {
+        description: "Please check your credentials and try again.",
+      });
     }
+  
     setLoading(false);
     if (Object.keys(methods.formState.errors).length === 0) {
       methods.reset();

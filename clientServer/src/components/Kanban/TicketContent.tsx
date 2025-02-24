@@ -1,19 +1,19 @@
 import { Button } from "@/components/ui/button";
-import { TicketType } from "@/types";
 import { Calendar, Clock, Edit2, MessageSquare, User } from "lucide-react";
 import { useCallback, useRef, useState } from "react";
 import { Textarea } from "../ui/textarea";
 import DescriptionEditor from "./DescriptionEditor";
+import { useKanban } from "@/Context/KanbanContext";
 
-const CardContent = ({
-  card,
+const TicketContent = ({
   onUpdateDescription,
-}: {
-  card: TicketType;
+}: {  
   onUpdateDescription?: (newDescription: string) => void;
 }) => {
+   const {selectedTicket} = useKanban();
+
   const [isEditing, setIsEditing] = useState(false);
-  const [description, setDescription] = useState(card.description || "");
+  const [description, setDescription] = useState(selectedTicket?.description || "");
   const [activeTab, setActiveTab] = useState<"write" | "preview">("write");
   const [isAddingComment, setIsAddingComment] = useState(false);
   const commentsRef = useRef<HTMLDivElement>(null);
@@ -55,14 +55,14 @@ const CardContent = ({
     <div className="flex flex-col gap-6 p-6 max-w-3xl mx-auto">
       {/* Header */}
       <div className="border-b pb-4">
-        <h1 className="text-2xl font-bold text-gray-900">{card.title}</h1>
+        <h1 className="text-2xl font-bold text-gray-900">{selectedTicket?.title}</h1>
         <div className="flex items-center gap-2 mt-2 text-sm text-gray-500">
           <Clock size={16} />
-          <span>Created {card?.createdAt?.toLocaleDateString()}</span>
-          {card?.updatedAt && (
+          <span>Created {new Date(selectedTicket?.createdAt||'')?.toLocaleDateString()}</span>
+          {selectedTicket?.updatedAt && (
             <>
               <span>•</span>
-              <span>Updated {card?.updatedAt?.toLocaleDateString()}</span>
+              <span>Updated {selectedTicket?.updatedAt?.toLocaleDateString()}</span>
             </>
           )}
         </div>
@@ -94,7 +94,7 @@ const CardContent = ({
             <div className="flex items-center justify-between">
               <h2 className="text-lg font-semibold text-gray-900 flex items-center gap-2">
                 <MessageSquare size={20} />
-                Comments ({card.comments.length})
+                Comments ({selectedTicket?.comments.length})
               </h2>
 
               <button
@@ -105,7 +105,7 @@ const CardContent = ({
               </button>
             </div>
             <div className="space-y-4">
-              {card.comments.map((comment, index) => (
+              {selectedTicket?.comments.map((comment, index) => (
                 <div key={index} className="bg-white rounded-lg border p-4">
                   <div className="flex items-center gap-2 mb-2">
                     <div className="h-8 w-8 rounded-full bg-gray-200 flex items-center justify-center">
@@ -120,7 +120,7 @@ const CardContent = ({
                   <p className="text-gray-700">{comment.description}</p>
                 </div>
               ))}
-              {card.comments.length === 0 && (
+              {selectedTicket?.comments.length === 0 && (
                 <p className="text-gray-500 italic">No comments yet</p>
               )}
             </div>
@@ -151,7 +151,7 @@ const CardContent = ({
                 <User size={16} className="text-gray-500" />
               </div>
               <span className="text-gray-900 font-medium">
-                {card.assignee.firstName}
+                {selectedTicket?.assignee.firstName}
               </span>
             </div>
           </div>
@@ -164,7 +164,7 @@ const CardContent = ({
                 <User size={16} className="text-gray-500" />
               </div>
               <span className="text-gray-900 font-medium">
-                {card.author.firstName}
+                {selectedTicket?.author.firstName}
               </span>
             </div>
           </div>
@@ -176,14 +176,14 @@ const CardContent = ({
               <div className="flex items-center gap-2 text-sm">
                 <Calendar size={16} className="text-gray-500" />
                 <span className="text-gray-700">
-                  Created: {card?.createdAt?.toLocaleDateString()}
+                  Created: {selectedTicket?.createdAt ? new Date(selectedTicket.createdAt).toLocaleDateString() : "N/A"}
                 </span>
               </div>
-              {card?.updatedAt && (
+              {selectedTicket?.updatedAt && (
                 <div className="flex items-center gap-2 text-sm">
                   <Clock size={16} className="text-gray-500" />
                   <span className="text-gray-700">
-                    Updated: {card?.updatedAt?.toLocaleDateString()}
+                    Updated: {new Date(selectedTicket?.updatedAt)?.toLocaleDateString()}
                   </span>
                 </div>
               )}
@@ -195,4 +195,4 @@ const CardContent = ({
   );
 };
 
-export default CardContent;
+export default TicketContent;

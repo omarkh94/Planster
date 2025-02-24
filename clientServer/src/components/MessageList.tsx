@@ -15,7 +15,7 @@ const MessageList: React.FC<MessageListProps> = ({
   onReply,
   selectedMessageId,
   userId,
-  onDelete,
+  // onDelete,
 }) => {
   const messageEndRef = useRef<HTMLDivElement | null>(null);
 
@@ -65,7 +65,7 @@ const MessageList: React.FC<MessageListProps> = ({
               {message.sender.id === userId && (
                 <button
                   className="hover:opacity-80"
-                  onClick={() => onDelete(message.id)}
+                  // onClick={() => onDelete(message.id)}
                 >
                   Delete
                 </button>

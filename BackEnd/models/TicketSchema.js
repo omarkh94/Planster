@@ -4,7 +4,7 @@ const TicketSchema = new mongoose.Schema(
   {
     title: { type: String, required: true },
     description: { type: String, required: false },
-    status: { type: mongoose.Schema.Types.ObjectId, ref: 'WorkFlowList', required: true },
+    status: { type: mongoose.Schema.Types.ObjectId, ref: 'WorkFlowList', required: false },
     author: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
     assignee: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: false },
     expectedDeadLine: { type: String, required: true , required: false},

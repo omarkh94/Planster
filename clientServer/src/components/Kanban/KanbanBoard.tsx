@@ -5,63 +5,90 @@ import {
   DropResult,
   Droppable,
 } from "@hello-pangea/dnd";
-import React, { useEffect } from "react";
-import { useParams } from "react-router-dom";
+import React, { useCallback, useEffect } from "react";
 import CreateList from "../../common/CreateList";
 import { useKanban } from "../../Context/KanbanContext";
-import "../../style/scroll.css";
-import { WorkFlowListType } from "../../types";
-import Column from "./Column";
+import WorkFlowList from "./WorkFlowList";
+import { useParams } from "react-router-dom";
+import axios from "axios";
 
 const KanbanBoard: React.FC = () => {
-  const { projects, reorderLists, reorderTickets, addListToProject } =
-    useKanban();
+  const {
+    project,
+    setProject,
+    loading,
+    error,
+    setError,
+    setLoading,
+    reorderLists,
+    reorderTickets,
+    moveTicket,
+  } = useKanban();
   const { CreateListModalOpen, setCreateListModalOpen } = useProject();
-  const { id } = useParams<{ id: string }>();
-  console.log('id :>> ', id);
-  const projectIndex = projects.findIndex((project) => project.id === id);
-  console.log('projectIndex :>> ', projectIndex);
+  const { projectId } = useParams<{ projectId: string }>();
+  const token = localStorage.getItem("authToken");
+  const getProjectData = useCallback(async () => {
+    try {
+      setLoading(true);
+      const response = await axios.get(
+        `${import.meta.env.VITE_APP_API_URL}/projects/project/${projectId}`,
+        {
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+      setProject(response?.data?.data);
+      console.log('response?.data?.data :>> ', response?.data?.data);
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    } catch (error: any) {
+      setError(error?.message);
+    } finally {
+      setLoading(false);
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [projectId, token]);
 
   useEffect(() => {
-    if (projectIndex !== -1) {
-      return;
-    }
-  }, [projectIndex]);
-
-  if (projectIndex === -1) {
-    return <div>Project not found.</div>;
-  }
-
-  const selectedProject = projects[projectIndex];
-  console.log('selectedProject :>> ', selectedProject);
-
-  const handleDragEnd = (result: DropResult) => {
-    const { destination, source, type } = result;
+    getProjectData();
+  }, [getProjectData]);
+  const handleDragEnd = async (result: DropResult) => {
+    const { source, destination, type } = result;
     if (!destination) return;
 
-    if (type === "list") {
-      reorderLists(projectIndex, source.index, destination.index);
+    if (type === "LIST") {
+      if (source.index !== destination.index) {
+        await reorderLists(source.index, destination.index);
+      }
     } else {
-      const sourceListIndex = parseInt(source.droppableId, 10);
-      const destinationListIndex = parseInt(destination.droppableId, 10);
-      reorderTickets(
-        projectIndex,
-        sourceListIndex,
-        destinationListIndex,
-        source.index,
-        destination.index
-      );
+      if (source.droppableId === destination.droppableId) {
+        if (source.index !== destination.index) {
+          await reorderTickets(
+            source.droppableId,
+            source.index,
+            destination.index
+          );
+        }
+      } else {
+        await moveTicket(
+          source.droppableId,
+          destination.droppableId,
+          source.index,
+          destination.index
+        );
+      }
     }
   };
 
-  const handleAddList = (newList: WorkFlowListType) => {
-    addListToProject(projectIndex, newList);
-  };
+  if (loading) return <div>Loading board...</div>;
+  if (error) return <div>Error: {error}</div>;
+
   return (
     <DragDropContext onDragEnd={handleDragEnd}>
       <div className="flex flex-col items-center justify-center w-full gap-4 ">
         <h2 className="text-center text-lg md:text-2xl font-semibold pt-2">
-          {selectedProject.title}
+          {project?.title}
         </h2>
         <button
           className="self-end text-start px-8  hover:bg-primary bg-primary/70 text-white p-2 rounded-md  font-semibold"
@@ -79,7 +106,7 @@ const KanbanBoard: React.FC = () => {
             ref={provided.innerRef}
             {...provided.droppableProps}
           >
-            {selectedProject.list.map((listItem, listIndex) => (
+            {project?.list?.map((listItem, listIndex) => (
               <Draggable
                 key={listItem.id}
                 draggableId={String(listItem.id)}
@@ -92,18 +119,24 @@ const KanbanBoard: React.FC = () => {
                     {...provided.dragHandleProps}
                     className="list"
                   >
-                    <Column
+                    <WorkFlowList
                       id={String(listIndex)}
                       title={listItem.title}
-                      list={listItem.list}
+                      tickets={listItem.list}
                     />
                   </div>
                 )}
               </Draggable>
             ))}
             {provided.placeholder}
-
-            {CreateListModalOpen && <CreateList onCreate={handleAddList} />}
+            {/* onCreate={} */}
+            {CreateListModalOpen && (
+              <CreateList
+                onCreate={function (): void {
+                  throw new Error("Function not implemented.");
+                }}
+              />
+            )}
           </div>
         )}
       </Droppable>

@@ -1,7 +1,8 @@
 import { FieldError } from "react-hook-form";
 
 export interface BaseEntity {
-  id: string;
+  id?: string;
+  _id?:string;
   isDeleted?: boolean;
   createdAt?: Date;
   updatedAt?: Date;
@@ -9,6 +10,11 @@ export interface BaseEntity {
 export interface Member {
   user: UserType;
   role: Role;
+}
+export interface TeamType extends BaseEntity {
+  name: string;
+  description: string;
+  members: Array<UserType>;
 }
 export interface project {
   project: ProjectType;
@@ -39,11 +45,6 @@ export interface Role extends BaseEntity {
   permissions: Array<string>;
 }
 
-export interface TeamType extends BaseEntity {
-  name: string;
-  description: string;
-  members: Array<UserType>;
-}
 
 export interface CommentType extends BaseEntity {
   description: string;
@@ -73,13 +74,13 @@ export interface WorkFlowListType extends BaseEntity {
     | "Approved"
     | "Done"
     | "Deployed";
-  project: ProjectType;
   author: UserType;
   list: Array<TicketType>;
   updatedBy: UserType;
 }
 
 export interface ProjectType extends BaseEntity {
+  _id: string;
   title: string;
   description: string;
   teams: Array<TeamType>;
@@ -87,6 +88,8 @@ export interface ProjectType extends BaseEntity {
   expectedDeadLine: Date;
   members: Array<Member>;
   list: Array<WorkFlowListType>;
+  role?:Role;
+  project?:project;
 }
 
 export interface MessageType extends BaseEntity {
@@ -127,7 +130,7 @@ export interface ChatState {
 export type ColumnProps = BaseEntity & {
   title: string;
   author?: UserType;
-  list: TicketType[];
+  tickets: TicketType[];
   updatedBy?: UserType;
 };
 

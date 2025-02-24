@@ -26,7 +26,7 @@ app.use(cookieParser());
 require('./models/db')
 app.use('/users', UserRouter)
 app.use('/team', TeamRouter)
-app.use('/project', ProjectRouter)
+app.use('/projects', ProjectRouter)
 app.use("/messages", MessageRouter)
 app.use("/api/invite", InviteRouter);
 app.get('/test', (req,res)=>{return res.json("server is running")})

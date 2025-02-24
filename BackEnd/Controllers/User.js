@@ -8,6 +8,16 @@ require("dotenv")
 
 
 
+
+
+
+
+
+
+
+
+
+
 const getAllUsers = async (req, res) => {
     try {
         const users = await usersModel.find({ isDeleted: false }).populate('projects.project')
@@ -27,12 +37,13 @@ const getAllUsers = async (req, res) => {
 }
 
 
+        
 
 
 const register = async (req, res) => {
     try {
-        const { firstName, lastName, phoneNumber, jobTitle, projects, gender, email, password, team } = req.body
-        const user = new usersModel({ firstName, lastName, jobTitle, phoneNumber, projects, gender, email, password, team })
+        const { firstName, lastName, phoneNumber, jobTitle, projects, email, password, team } = req.body
+        const user = new usersModel({ firstName, lastName, jobTitle, phoneNumber, projects, email, password, team })
 
 
         const existingUser = await usersModel.findOne({ email: email.toLowerCase() });
@@ -99,7 +110,7 @@ const login = async (req, res) => {
                     });
                 }
 
-
+                ``
             });
 
 
@@ -117,6 +128,9 @@ const login = async (req, res) => {
         });
     }
 }
+
+
+
 
 const getMemberById = async (req, res) => {
     try {
@@ -262,69 +276,92 @@ const addUserToTeam = async (req, res) => {
         const userToAdd = await usersModel.findOne({ email });
         if (!userToAdd) return res.status(404).json({ success: false, message: 'User not found' });
 
-        const updatedTeam = await TeamModel.findByIdAndUpdate(teamId, { $push: { members: userToAdd._id } }, { new: true });
+        const updatedTeam = await TeamModel.findByIdAndUpdate(teamId, { $push: { members: userToAdd._id } },
+            { new: true });
         res.status(201).json({ success: true, message: 'Member added successfully', data: updatedTeam });
     } catch (error) {
         res.status(500).json({ success: false, message: error.message });
     }
 };
 
-
-const isProjectAdmin = async (userId, projectId) => {
-    const project = await projectModel.findById(projectId);
-    return project && project.admin.toString() === userId.toString();
-};
-
 const addUserToProject = async (req, res) => {
     try {
-        const { projectId, userId, mode } = req.body;
-        if (!projectId || !userId || !mode) {
+        const { projectId, userId, roleId } = req.body;
+
+        if (!projectId || !userId || !roleId) {
             return res.status(400).json({
                 success: false,
-                message: "projectId, userId, and mode (invite/join) are required."
+                message: "projectId, userId, and roleId are required."
             });
         }
-        if (mode === "invite") {
-            const isAdmin = await isProjectAdmin(req.user.id, projectId);
-            if (!isAdmin) {
-                return res.status(403).json({
-                    success: false,
-                    message: "You are not authorized to invite users to this project."
-                });
-            }
-            await projectModel.findByIdAndUpdate(
-                projectId,
-                { $addToSet: { invitedUsers: userId } },
-                { new: true }
-            );
-            return res.status(200).json({
-                success: true,
-                message: "User invited to the project successfully."
-            });
-        } else if (mode === "join") {
-            if (req.user.id !== userId) {
-                return res.status(403).json({
-                    success: false,
-                    message: "You cannot request to join on behalf of another user."
-                });
-            }
 
-            await projectModel.findByIdAndUpdate(
-                projectId,
-                { $addToSet: { joinRequests: userId } },
-                { new: true }
-            );
-
-            return res.status(200).json({
-                success: true,
-                message: "Join request submitted successfully."
+        const user = await usersModel.findById(userId);
+        if (!user) {
+            return res.status(404).json({
+                success: false,
+                message: "User not found."
             });
-        } else {
+        }
+
+        const project = await projectModel.findById(projectId);
+        if (!project) {
+            return res.status(404).json({
+                success: false,
+                message: "Project not found."
+            });
+        }
+
+        project.members.push({ user: userId, role: roleId });
+        await project.save();
+
+        return res.status(200).json({
+            success: true,
+            message: "User successfully added to project.",
+            data: project
+        });
+
+    } catch (error) {
+        res.status(500).json({ success: false, message: error.message });
+    }
+}
+
+
+const addProjectToUser = async (req, res) => {
+    try {
+        const { projectId, userId, roleId } = req.body;
+
+        if (!projectId || !userId || !roleId) {
             return res.status(400).json({
                 success: false,
-                message: "Invalid mode. Use 'invite' for project admin invitation or 'join' for user join request."
+                message: "projectId, userId, and roleId are required."
             });
         }
+
+        const user = await usersModel.findById(userId);
+        if (!user) {
+            return res.status(404).json({
+                success: false,
+                message: "User not found."
+            });
+        }
+
+        const project = await projectModel.findById(projectId);
+        if (!project) {
+            return res.status(404).json({
+                success: false,
+                message: "Project not found."
+            });
+        }
+
+        user.projects.push({ project: projectId, role: roleId });
+        await user.save();
+
+        return res.status(200).json({
+            success: true,
+            message: "Project successfully assigned to user.",
+            data: user
+        });
+
     } catch (error) {
         res.status(500).json({ success: false, message: error.message });
     }
@@ -338,7 +375,7 @@ const addUserToProject = async (req, res) => {
 
 
 
-module.exports = { register, getMemberById, login, getAllUsers, getUsersByTeam, modifyProfile, deleteProfile, removeMemberFromProject, moveOrRemoveMemberFromTeam, addUserToTeam };
+module.exports = {getAllUsers,register,login,getMemberById,getUsersByTeam,modifyProfile,deleteProfile,removeMemberFromProject,moveOrRemoveMemberFromTeam,addUserToTeam,addUserToProject,addProjectToUser };
 
 
 

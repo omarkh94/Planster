@@ -5,7 +5,6 @@ import { KanbanProvider } from "./Context/KanbanContext";
 import ContactSupport from "./pages/ContactSupport";
 import HomePage from "./pages/HomePage";
 import Profile from "./pages/Profile";
-import Project from "./pages/project";
 import Projects from "./pages/Projects";
 import TeamTable from "./pages/TeamTable";
 import { useUser } from "./store/UserStore";
@@ -15,19 +14,22 @@ import ChatRoom from "./pages/ChatRoom";
 import LoginModal from "./components/Auth/LoginModal";
 import ForgottenPass from "./components/ForgottenPass";
 import WelcomePage from "./pages/WelcomePage";
+// import KanbanBoard from "./components/Kanban/KanbanBoard";
+import Project from "./pages/Project";
+import { Toaster } from "sonner";
 
 
 const App = () => {
   const { dialogOpen, forgottenPassOpen } = useUser();
   const { registerModalOpen, loginModalOpen , profileModalOpen } = useAuthStore();
-  // const userId = localStorage.getItem("userId")
   return (
     <KanbanProvider>
       <NavLayout>
+      <Toaster />
         <Routes>
           <Route path="/" element={<HomePage />} />
           <Route path="/projects" element={<Projects />} />
-          <Route path="/project/:id" element={<Project />} />
+          <Route path="/project/:projectId" element={<Project />} />
           <Route path="/team/:teamId" element={<TeamTable />} />
           <Route path="/info" element={<ContactSupport />} />
           <Route path="/conversation" element={<ChatRoom />} />

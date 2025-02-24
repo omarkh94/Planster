@@ -8,7 +8,7 @@ const TicketRouter = express.Router();
 TicketRouter.use("/comment",CommentsRouter)
 TicketRouter.get("/", authentication,getAllTickets)
 TicketRouter.get("/:listId",authentication,getTicketsByListId)
-TicketRouter.post("/",authentication,AddNewTicket)
+TicketRouter.post("/new",authentication,AddNewTicket)
 TicketRouter.put("/:id",authentication,modifyExistingTicket)
 TicketRouter.delete("/:id",authentication,deleteTicketFromList)
 

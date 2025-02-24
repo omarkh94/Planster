@@ -11,8 +11,12 @@ const CreateList: React.FC<{
 }> = ({ onCreate }) => {
   const { setCreateListModalOpen } = useProject();
 
-  const { id } = useParams<{ id: string }>();
-  const selectedProject = projects.find((project) => project.id === id);
+  const { projectId } = useParams<{ projectId: string }>();
+  console.log('projectId :>> ', projectId);
+  const selectedProject = projects.find((project) => project.id === projectId);
+
+
+  
   const [values, setValues] = React.useState<WorkFlowListType>({
     id: `list-${Math.random()}`,
     title: "",
@@ -21,17 +25,8 @@ const CreateList: React.FC<{
     isDeleted: false,
     author: { id: "user-1", name: "Author" } as unknown as UserType,
     updatedBy: { id: "user-1", name: "Author" } as unknown as UserType,
-    list: [],
-    project: selectedProject ?? {
-      id: "",
-      title: "",
-      description: "",
-      teams: [],
-      projectOwner: { id: "", name: "" } as unknown as UserType,
-      expectedDeadLine: new Date(),
-      members: [],
-      list: [],
-    },
+    tickets: [],
+    
   });
   const handleClose = () => {
     setCreateListModalOpen(false);
@@ -43,17 +38,8 @@ const CreateList: React.FC<{
       isDeleted: false,
       author: { id: "user-1", name: "Author" } as unknown as UserType,
       updatedBy: { id: "user-1", name: "Author" } as unknown as UserType,
-      list: [],
-      project: selectedProject ?? {
-        id: "",
-        title: "",
-        description: "",
-        teams: [],
-        projectOwner: { id: "", name: "" } as unknown as UserType,
-        expectedDeadLine: new Date(),
-        members: [],
-        list: [],
-      },
+      tickets: [],
+      
     });
   };
 
@@ -69,8 +55,7 @@ const CreateList: React.FC<{
       isDeleted: false,
       author: { id: "user-1", name: "Author" } as unknown as UserType,
       updatedBy: { id: "user-1", name: "Author" } as unknown as UserType,
-      list: [],
-      project: selectedProject, 
+      tickets: [],
     };
 
     onCreate(newList);
@@ -133,3 +118,5 @@ const CreateList: React.FC<{
 };
 
 export default CreateList;
+
+

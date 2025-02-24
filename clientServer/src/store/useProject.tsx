@@ -1,7 +1,10 @@
-import { TicketType } from "@/types";
+/* eslint-disable @typescript-eslint/no-explicit-any */
+import {  TicketType } from "@/types";
 import { create } from "zustand";
 
 type Store = {
+  projects: any;
+  setProjects: (project: any) => void;
   cardModalOpen: boolean;
   setCardModalOpen: (open: boolean) => void;
   CreateCardModalOpen: boolean;
@@ -13,6 +16,8 @@ type Store = {
 };
 
 export const useProject = create<Store>()((set) => ({
+  projects: [],
+  setProjects: (projects) => set(() => ({ projects })),
   cardModalOpen: false,
   setCardModalOpen: (open) => set(() => ({ cardModalOpen: open })),
   CreateCardModalOpen: false,

@@ -8,6 +8,8 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import axios from "axios";
 import { KeyRound, Send } from "lucide-react";
 import { useForm, FormProvider } from "react-hook-form";
+import { toast } from "sonner";
+
 const RegisterModal = () => {
   const methods = useForm<RegisterSchema>({
     resolver: zodResolver(registerSchema),
@@ -30,19 +32,28 @@ const RegisterModal = () => {
       firstName: values.name,
       projects: [],
     };
+
     console.log("submitData :>> ", submitData);
+
     try {
       const response = await axios.post(
         `${import.meta.env.VITE_APP_API_URL}/users/register`,
         submitData
       );
-      alert("Registration successful! Please log in.");
-      
-      console.log('submitData :>> ', submitData);
-      // Reset the form
+
+      toast.success("Welcome to Planster! Redirecting to login...", {
+        duration: 3000,
+      });
+
+      console.log("submitData :>> ", submitData);
+
       methods.reset();
-      setRegisterModalOpen(false);
-      setLoginModalOpen(true);
+
+      setTimeout(() => {
+        setRegisterModalOpen(false);
+        setLoginModalOpen(true);
+      }, 3000);
+
       console.log("response :>> ", response);
     } catch (error) {
       console.log("error :>> ", error);
@@ -54,11 +65,14 @@ const RegisterModal = () => {
             type: "manual",
             message: "Email already in use",
           });
+          toast.error("Email already in use", { duration: 3000 });
         } else {
-          alert(message || "Something went wrong, please try again.");
+          toast.error(message || "Something went wrong, please try again.", {
+            duration: 3000,
+          });
         }
       } else {
-        alert("Network error, please try again.");
+        toast.error("Network error, please try again.", { duration: 3000 });
       }
     }
 
@@ -169,6 +183,40 @@ const RegisterModal = () => {
               {/* fourth row */}
               <div className="flex flex-col md:flex-row gap-4 w-full justify-between">
                 <FormItem
+                  name="Projects"
+                  label={"Projects"}
+                  type="select"
+                  className="md:w-1/2"
+                  inputClass="py-4 min-h-12 w-full "
+                  placeholder="Select"
+                  required
+                  labelClass="uppercase"
+                  options={[
+                    {
+                      label: "Frontend Developer",
+                      value: "Frontend Developer",
+                    },
+                    { label: "Backend Developer", value: "Backend Developer" },
+                    {
+                      label: "Full Stack Developer",
+                      value: "Full Stack Developer",
+                    },
+                    { label: "Software Engineer", value: "Software Engineer" },
+                    { label: "UI/UX Developer", value: "UI/UX Developer" },
+                    { label: "Web Developer", value: "Web Developer" },
+                    {
+                      label: "Mobile App Developer",
+                      value: "Mobile App Developer",
+                    },
+                    { label: "DevOps Engineer", value: "DevOps Engineer" },
+                    { label: "Cloud Engineer", value: "Cloud Engineer" },
+                    { label: "API Developer", value: "API Developer" },
+                  ]}
+                />
+              </div>
+              {/* fifth row */}
+              <div className="flex flex-col md:flex-row gap-4 w-full justify-between">
+                <FormItem
                   name="password"
                   type="password"
                   label={"password"}
@@ -189,7 +237,7 @@ const RegisterModal = () => {
                   labelClass="uppercase"
                 />
               </div>
-              {/* Fourth row */}
+              {/* Sixth row */}
               <div className="flex flex-col md:flex-row gap-4 justify-between items-center ">
                 <button
                   className="flex flex-row gap-2 items-center bg-primary border border-border px-4 py-2 text-white font-semibold"
