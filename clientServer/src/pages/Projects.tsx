@@ -14,39 +14,34 @@ const Projects = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const { projects, setProjects } = useProject();
-
-  useEffect(() => {
-    const fetchProjects = async () => {
-      try {
-        const response = await axios.get(
-          `${import.meta.env.VITE_APP_API_URL}/projects/${userId}`,
-
-          {
-            headers: {
-              "Content-Type": "application/json",
-              Authorization: `Bearer ${token}`,
-            },
-          }
-        );
-
-        setProjects(response.data.data.projects);
-        setLoading(false);
-      } catch (error: any) {
-        setLoading(false);
-        setError("Failed to load projects. Please try again later.");
-        console.error("error :>> ", error);
-        if (axios.isAxiosError(error) && error.response) {
-          return error.response.data;
-        } else {
-          alert(error.message);
+  const fetchProjects = async () => {
+    try {
+      const response = await axios.get(
+        `${import.meta.env.VITE_APP_API_URL}/projects/${userId}`,
+        {
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
         }
+      );
+      setProjects(response.data.data.projects);
+      setLoading(false);
+    } catch (error: any) {
+      setLoading(false);
+      setError("Failed to load projects. Please try again later.");
+      console.error("error :>> ", error);
+      if (axios.isAxiosError(error) && error.response) {
+        return error.response.data;
+      } else {
+        alert(error.message);
       }
-    };
-
+    }
+  };
+  useEffect(() => {
     fetchProjects();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [userId, token, setProjects]);
-
-  const adminUser = projects.map((item: any) => item.role?.role === "admin");
 
   return (
     <div className="flex flex-col items-center gap-12">
@@ -86,54 +81,48 @@ const Projects = () => {
                 </td>
               </tr>
             ) : (
-              projects.map((project: any) =>
-                !project.project?.isDeleted ? (
-                  <tr
-                    key={project.project?._id}
-                    className="bg-white hover:bg-gray-100"
-                  >
+              projects.map((project: any) => {
+                console.log("project :>> ", project);
+
+                return !project.project?.isDeleted ? (
+                  <tr key={project?._id} className="bg-white hover:bg-gray-100">
                     <td
                       className="ps-2 underline cursor-pointer w-[12%] px-2 truncate"
-                      onClick={() => navigate(`/project/${project.project?._id}`)}
+                      onClick={() => navigate(`/project/${project?._id}`)}
                     >
-                      {project.project?.title}
+                      {project?.title}
                     </td>
-                    <td className="max-w-4 w-[25%] px-2   truncate">{project.project?.description}</td>
+                    <td className="max-w-4 w-[25%] px-2   truncate">
+                      {project?.description}
+                    </td>
                     <td className="w-[13%] px-2">
-                      {project.project?.expectedDeadLine
+                      {project?.expectedDeadLine
                         ? new Date(
-                            project.project?.expectedDeadLine
+                            project?.expectedDeadLine
                           ).toLocaleDateString()
                         : "N/A"}
                     </td>
                     <td className="w-[12%] px-2">
-                      {project.project?.teams?.length > 0 ? (
-                        project.teams.map((team: any) => (
-                          <span
-                            key={team.id}
-                            className="cursor-pointer underline text-blue-600 hover:text-blue-800 block"
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              navigate(`/team/${team.id}`);
-                            }}
-                          >
-                            {team.name}
-                          </span>
-                        ))
-                      ) : (
-                        <span className="text-gray-500">No teams</span>
-                      )}
+                      <span
+                        className="cursor-pointer underline text-blue-600 hover:text-blue-800 block"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          navigate(`/team/${project.team._id}`);
+                        }}
+                      >
+                        {project.team.name}
+                      </span>
                     </td>
 
                     <td className="underline cursor-pointer w-[13%] px-2">
-                      {project.project?.projectOwner?.firstName}
+                      {project?.projectOwner?.firstName}
                     </td>
-                    {adminUser && (
-                      <>
-                        <td className="w-[13%] px-2">
-                          {project.isDeleted ? "inActive" : "Active"}
-                        </td>
-                        <td className="w-[12%] px-2">
+                    <td className="w-[13%] px-2">
+                      {project.isDeleted ? "inActive" : "Active"}
+                    </td>
+                    <>
+                      <td className="w-[12%] px-2">
+                        {project?.projectOwner._id == userId && (
                           <div className="flex flex-col py-2 gap-2">
                             <button
                               className="flex flex-row items-center gap-2 bg-secondary text-primary border py-1 px-3 border-border p-2 outline-none font-semibold"
@@ -160,12 +149,12 @@ const Projects = () => {
                               </span>
                             </button>
                           </div>
-                        </td>
-                      </>
-                    )}
+                        )}
+                      </td>
+                    </>
                   </tr>
-                ) : null
-              )
+                ) : null;
+              })
             )}
           </tbody>
         </table>

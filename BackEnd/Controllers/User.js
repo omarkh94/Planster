@@ -6,40 +6,6 @@ const bcrypt = require('bcrypt')
 const jwt = require('jsonwebtoken')
 require("dotenv")
 
-
-
-
-
-
-
-
-
-
-
-
-
-const getAllUsers = async (req, res) => {
-    try {
-        const users = await usersModel.find({ isDeleted: false }).populate('projects.project')
-            .populate('projects.role').exec()
-        res.status(200).json({
-            success: true,
-            message: 'Users data',
-            data: users
-        })
-    } catch (error) {
-        res.status(400).json({
-            success: false,
-            message: error.message,
-
-        })
-    }
-}
-
-
-        
-
-
 const register = async (req, res) => {
     try {
         const { firstName, lastName, phoneNumber, jobTitle, projects, email, password, team } = req.body
@@ -69,12 +35,6 @@ const register = async (req, res) => {
         })
     }
 }
-
-
-
-
-
-
 
 const login = async (req, res) => {
     try {
@@ -129,43 +89,10 @@ const login = async (req, res) => {
     }
 }
 
-
-
-
-const getMemberById = async (req, res) => {
-    try {
-        const { userId } = req.params;
-
-        const member = await usersModel.findOne({ _id: userId, isDeleted: false });
-
-        if (!member) {
-            return res.status(404).json({
-                success: false,
-                message: "Member not found",
-            });
-        }
-
-        res.status(200).json({
-            success: true,
-            message: "Member retrieved successfully",
-            data: member,
-        });
-    } catch (error) {
-        res.status(500).json({
-            success: false,
-            message: error.message,
-        });
-    }
-};
-
-
-
-const getUsersByTeam = async (req, res) => {
+const getTeammates = async (req, res) => {
     try {
         const { teamId } = req.params;
-
         const users = await usersModel.find({ team: teamId, isDeleted: false });
-
         res.status(200).json({
             success: true,
             message: ' users retrieved successfully',
@@ -178,9 +105,6 @@ const getUsersByTeam = async (req, res) => {
         });
     }
 };
-
-
-
 
 const modifyProfile = async (req, res) => {
     try {
@@ -214,15 +138,6 @@ const modifyProfile = async (req, res) => {
     }
 };
 
-
-
-
-
-
-
-
-
-
 const deleteProfile = async (req, res) => {
     try {
         const { userId } = req.params;
@@ -233,6 +148,81 @@ const deleteProfile = async (req, res) => {
     }
 };
 
+const addUserToTeam = async (req, res) => {
+    try {
+        const { userId, teamId } = req.body;
+
+        // Add user to the team
+        const updatedTeam = await TeamModel.findByIdAndUpdate(
+            teamId,
+            { $addToSet: { members: userId } }, // Avoid duplicate members
+            { new: true }
+        );
+
+        if (!updatedTeam) {
+            return res.status(404).json({ success: false, message: "Team not found" });
+        }
+
+        // Get the project associated with this team
+        const project = await projectModel.findOne({ team: teamId });
+
+        if (project) {
+            // Add the project to the user's projects array
+            await usersModel.findByIdAndUpdate(
+                userId,
+                { $addToSet: { projects: project._id } }, // Add single project ID, avoiding duplicates
+                { new: true }
+            );
+        }
+
+        res.status(201).json({
+            success: true,
+            message: "Member added successfully",
+            data: updatedTeam,
+        });
+
+    } catch (error) {
+        res.status(500).json({ success: false, message: error.message });
+    }
+};
+
+
+const getUsersAreNotInThisProject = async (req, res) => {
+    try {
+        const { teamId } = req.params
+        const { userId } = req.token;
+
+        const users = await TeamModel.find({
+            _id: teamId,
+            members: { $ne: userId }
+        });
+
+        res.status(200).json({ success: true, data: users });
+
+    } catch (error) {
+        res.status(500).json({ success: false, message: error.message });
+    }
+};
+
+module.exports = {
+    register, login,
+    getUsersAreNotInThisProject, modifyProfile,
+    deleteProfile, addUserToTeam,
+    getUsersAreNotInThisProject
+};
+
+
+
+
+
+
+
+
+
+
+
+
+/*
 
 
 const removeMemberFromProject = async (req, res) => {
@@ -248,146 +238,7 @@ const removeMemberFromProject = async (req, res) => {
     }
 };
 
-const moveOrRemoveMemberFromTeam = async (req, res) => {
-    try {
-        const { teamId, memberId, newTeamId } = req.body;
-        if (!['admin', 'supervisor'].includes(req.user.role)) {
-            return res.status(403).json({ success: false, message: 'Unauthorized' });
-        }
-        await TeamModel.findByIdAndUpdate(teamId, { $pull: { members: memberId } });
 
-        if (newTeamId) {
-            await TeamModel.findByIdAndUpdate(newTeamId, { $push: { members: memberId } });
-            res.status(200).json({ success: true, message: 'Member moved to new team successfully' });
-        } else {
-            res.status(200).json({ success: true, message: 'Member removed from team successfully' });
-        }
-    } catch (error) {
-        res.status(500).json({ success: false, message: error.message });
-    }
-};
-
-const addUserToTeam = async (req, res) => {
-    try {
-        const { email, teamId } = req.body;
-        if (req.user.role !== 'admin') {
-            return res.status(403).json({ success: false, message: 'Unauthorized' });
-        }
-        const userToAdd = await usersModel.findOne({ email });
-        if (!userToAdd) return res.status(404).json({ success: false, message: 'User not found' });
-
-        const updatedTeam = await TeamModel.findByIdAndUpdate(teamId, { $push: { members: userToAdd._id } },
-            { new: true });
-        res.status(201).json({ success: true, message: 'Member added successfully', data: updatedTeam });
-    } catch (error) {
-        res.status(500).json({ success: false, message: error.message });
-    }
-};
-
-const addUserToProject = async (req, res) => {
-    try {
-        const { projectId, userId, roleId } = req.body;
-
-        if (!projectId || !userId || !roleId) {
-            return res.status(400).json({
-                success: false,
-                message: "projectId, userId, and roleId are required."
-            });
-        }
-
-        const user = await usersModel.findById(userId);
-        if (!user) {
-            return res.status(404).json({
-                success: false,
-                message: "User not found."
-            });
-        }
-
-        const project = await projectModel.findById(projectId);
-        if (!project) {
-            return res.status(404).json({
-                success: false,
-                message: "Project not found."
-            });
-        }
-
-        project.members.push({ user: userId, role: roleId });
-        await project.save();
-
-        return res.status(200).json({
-            success: true,
-            message: "User successfully added to project.",
-            data: project
-        });
-
-    } catch (error) {
-        res.status(500).json({ success: false, message: error.message });
-    }
-}
-
-
-const addProjectToUser = async (req, res) => {
-    try {
-        const { projectId, userId, roleId } = req.body;
-
-        if (!projectId || !userId || !roleId) {
-            return res.status(400).json({
-                success: false,
-                message: "projectId, userId, and roleId are required."
-            });
-        }
-
-        const user = await usersModel.findById(userId);
-        if (!user) {
-            return res.status(404).json({
-                success: false,
-                message: "User not found."
-            });
-        }
-
-        const project = await projectModel.findById(projectId);
-        if (!project) {
-            return res.status(404).json({
-                success: false,
-                message: "Project not found."
-            });
-        }
-
-        user.projects.push({ project: projectId, role: roleId });
-        await user.save();
-
-        return res.status(200).json({
-            success: true,
-            message: "Project successfully assigned to user.",
-            data: user
-        });
-
-    } catch (error) {
-        res.status(500).json({ success: false, message: error.message });
-    }
-}
-
-
-
-
-
-
-
-
-
-module.exports = {getAllUsers,register,login,getMemberById,getUsersByTeam,modifyProfile,deleteProfile,removeMemberFromProject,moveOrRemoveMemberFromTeam,addUserToTeam,addUserToProject,addProjectToUser };
-
-
-
-
-
-
-
-
-
-
-
-
-
+*/
 
 

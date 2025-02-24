@@ -1,38 +1,61 @@
+import { useEffect, useState } from "react";
+import { useParams } from "react-router-dom";
+import axios from "axios";
 import InviteTeamMember from "@/components/InviteTeamMember";
-import { useState } from "react";
-import { mockData } from "../mock";
-import { TeamType } from "../types";
 
 const TeamTable = () => {
-  const id: string = "t1";
+  const { teamId } = useParams();
+  const token = localStorage.getItem("authToken");
 
-  const [teams] = useState<TeamType[]>(mockData.teams);
+  type TeamType = {
+    members: MemberType[];
+    name: string;
+    _id: string;
+  };
+  type MemberType = {
+    email: string;
+    firstName: string;
+    jobTitle: string;
+    lastName: string;
+    phoneNumber: string;
+    _id: string;
+  };
+  const [teams, setTeams] = useState<TeamType>({} as TeamType);
   const [teamModalOpen, setTeamModalOpen] = useState(false);
-
-  const team = teams.find((team: TeamType) => team.id === id);
-
-  if (!team || team.isDeleted) {
-    return (
-      <div className="wraper">
-        <div className="TeamModal">
-          <h2 className="teamModalError">No team available</h2>
-        </div>
-      </div>
-    );
-  }
-
-  const sortedMembers = [...team.members].sort((a, b) => {
-    if (a.role.role === "admin") return -1;
-    if (b.role.role === "admin") return 1;
-    if (a.role.role === "supervisor") return -1;
-    if (b.role.role === "supervisor") return 1;
-    return 0;
-  });
-
+  const fetchProjects = async () => {
+    try {
+      const response = await axios.get(
+        `${import.meta.env.VITE_APP_API_URL}/team/${teamId}`,
+        {
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+      console.log("response.data.data :>> ", response.data.data);
+      setTeams(response.data.data);
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    } catch (error: any) {
+      console.error("error :>> ", error);
+      if (axios.isAxiosError(error) && error.response) {
+        return error.response.data;
+      } else {
+        alert(error.message);
+      }
+    }
+  };
+  useEffect(() => {
+    fetchProjects();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [teamId, token]);
   return (
     <>
       <div className="flex flex-col items-center gap-12  ">
-        <h1 className="text-4xl font-bold font-caveat">Team {team.name}</h1>
+        <h1 className="text-4xl font-bold font-caveat">
+          Team
+          {teams?.name}
+        </h1>
 
         <div className="max-w-[90vw] w-full  overflow-x-scroll">
           <table className="w-full">
@@ -45,32 +68,27 @@ const TeamTable = () => {
               </tr>
             </thead>
             <tbody className="text-base font-light">
-              {sortedMembers.map(
-                (member, index) =>
-                  !member.user.isDeleted && (
-                    <>
-                      <tr key={index} className="bg-white hover:bg-gray-100">
-                        <td className="w-[25%] text-start px-2 py-4">
-                          {member.user.name} {member.user.lastName}
-                        </td>
-                        <td className="w-[25%] text-start px-2">
-                          {member.user.jobTitle}
-                        </td>
-                        <td className="w-[25%] text-start px-2">
-                          {member.user.email}
-                        </td>
-                        <td className="w-[25%] text-start px-2">
-                          {member.user.phoneNumber}
-                        </td>
-                      </tr>
-                      <tr>
-                        <td>
-                          <div className="w-full h-[1px] bg-gray-300"></div>
-                        </td>
-                      </tr>
-                    </>
-                  )
-              )}
+              {teams?.members?.map((member, index) => (
+                <>
+                  <tr key={index} className="bg-white hover:bg-gray-100">
+                    <td className="w-[25%] text-start px-2 py-4">
+                      {member.firstName} {member.lastName}
+                    </td>
+                    <td className="w-[25%] text-start px-2">
+                      {member.jobTitle}
+                    </td>
+                    <td className="w-[25%] text-start px-2">{member.email}</td>
+                    <td className="w-[25%] text-start px-2">
+                      {member.phoneNumber}
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>
+                      <div className="w-full h-[1px] bg-gray-300"></div>
+                    </td>
+                  </tr>
+                </>
+              ))}
             </tbody>
           </table>
         </div>

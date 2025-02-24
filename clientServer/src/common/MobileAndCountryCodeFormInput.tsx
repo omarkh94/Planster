@@ -33,7 +33,7 @@ export const MobileAndCountryCodeFormInput = ({
 }) => {
   return (
     <div
-      className={`flex flex-col gap-2 w-full md:w-1/2   text-start ${className}`}
+      className={`flex flex-col gap-2 w-full md:w-1/2    text-start ${className}`}
     >
       <Label
         htmlFor="phone"
@@ -41,7 +41,7 @@ export const MobileAndCountryCodeFormInput = ({
       >
         Mobile Number
       </Label>
-      <div className="flex flex-row items-center  border dark:border-white/50 ">
+      <div className="flex flex-row items-center  border dark:border-white/50 rounded-md">
         <Select
           onValueChange={(value) => {
             onChange("mobileNumber.countryCode", value);

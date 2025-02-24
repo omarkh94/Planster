@@ -1,96 +1,64 @@
-import * as React from "react";
+import { useState } from "react";
 
 import { useProject } from "@/store/useProject";
-import { WorkFlowListType, UserType } from "../types";
 import ModalWithChildren from "./ModalWithChildren";
 import { useParams } from "react-router-dom";
-import { projects } from "@/mock";
+import axios from "axios";
+import { toast } from "sonner";
+import { useKanban } from "@/Context/KanbanContext";
 
-const CreateList: React.FC<{
-  onCreate: (list: WorkFlowListType) => void;
-}> = ({ onCreate }) => {
+const CreateList = () => {
   const { setCreateListModalOpen } = useProject();
-
+  const { setProject } = useKanban();
+  const token = localStorage.getItem("authToken");
   const { projectId } = useParams<{ projectId: string }>();
-  console.log('projectId :>> ', projectId);
-  const selectedProject = projects.find((project) => project.id === projectId);
-
-
-  
-  const [values, setValues] = React.useState<WorkFlowListType>({
-    id: `list-${Math.random()}`,
-    title: "",
-    createdAt: new Date(),
-    updatedAt: new Date(),
-    isDeleted: false,
-    author: { id: "user-1", name: "Author" } as unknown as UserType,
-    updatedBy: { id: "user-1", name: "Author" } as unknown as UserType,
-    tickets: [],
-    
-  });
-  const handleClose = () => {
-    setCreateListModalOpen(false);
-    setValues({
-      id: `list-${Math.random()}`,
-      title: "",
-      createdAt: new Date(),
-      updatedAt: new Date(),
-      isDeleted: false,
-      author: { id: "user-1", name: "Author" } as unknown as UserType,
-      updatedBy: { id: "user-1", name: "Author" } as unknown as UserType,
-      tickets: [],
-      
-    });
+  const [listTitle, setListTitle] = useState<string>();
+  const handleCreateNewList = async () => {
+    try {
+      const response = await axios.post(
+        `${import.meta.env.VITE_APP_API_URL}/projects/list/new/${projectId}`,
+        {
+          title: listTitle,
+        },
+        {
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+      setProject(response.data?.data);
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    } catch (error: any) {
+      toast.error(error.message);
+    }
   };
 
-  const handleCreate = () => {
-    if (!selectedProject) {
-      return;
-    }
-    const newList: WorkFlowListType = {
-      id: `list-${Math.random()}`,
-      title: values.title,
-      createdAt: new Date(),
-      updatedAt: new Date(),
-      isDeleted: false,
-      author: { id: "user-1", name: "Author" } as unknown as UserType,
-      updatedBy: { id: "user-1", name: "Author" } as unknown as UserType,
-      tickets: [],
-    };
+  const handleClose = () => {
+    setCreateListModalOpen(false);
+  };
 
-    onCreate(newList);
+  const handleCreate = async () => {
+    await handleCreateNewList();
     handleClose();
   };
 
   return (
-    <ModalWithChildren onClose={handleClose} size="medium">
+    <ModalWithChildren onClose={handleClose} size="small">
       <div className="flex flex-col gap-5 items-center  p-4 lg:p-8 font-glory">
         <h1 className="font-semibold">Create New List</h1>
         <form className="w-full flex flex-col gap-4" onSubmit={handleCreate}>
           <div className="flex flex-col gap-2 items-start justify-start w-full">
-            <label htmlFor="list-title">Title</label>
-            <select
+            <label htmlFor="list-title">List Title</label>
+            <input
               id="list-title"
+              type="text"
               className="outline-none border-border border px-2 py-1 w-full placeholder:font-caveat"
-              value={values.title}
-              onChange={(e) =>
-                setValues({
-                  ...values,
-                  title: e.target.value as WorkFlowListType["title"],
-                })
-              }
-            >
-              <option value="Backlog">Backlog</option>
-              <option value="To Do">To Do</option>
-              <option value="In Progress">In Progress</option>
-              <option value="Blocked">Blocked</option>
-              <option value="Code Review">Code Review</option>
-              <option value="Ready for QA">Ready for QA</option>
-              <option value="QA In Progress">QA In Progress</option>
-              <option value="Approved">Approved</option>
-              <option value="Done">Done</option>
-              <option value="Deployed">Deployed</option>
-            </select>
+              placeholder="List Title"
+              value={listTitle}
+              onChange={(e) => setListTitle(e.target.value)}
+              required
+            />
           </div>
         </form>
         <div className="flex flex-row gap-2 items-end justify-end w-full">
@@ -118,5 +86,3 @@ const CreateList: React.FC<{
 };
 
 export default CreateList;
-
-

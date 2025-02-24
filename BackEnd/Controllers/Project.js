@@ -6,33 +6,19 @@ const RoleModel = require("../models/RoleSchema")
 const UserModel = require("../models/UserSchema")
 
 
-const getProjectsList = async function (req, res) {
-    try {
-        const Project = await ProjectModel.find({ isDeleted: false }).populate('members').exec()
-        res.status(200).json({
-            success: true,
-            message: 'Projects data',
-            data: Project
-        })
-    } catch (error) {
-        res.status(400).json({
-            success: false,
-            message: error.message,
 
-        })
-    }
-
-}
-const getProjectsBelongsToId = async function (req, res) {
+const getProjectsToUser = async function (req,
+    res) {
     try {
         const { userId } = req.params
         const user = await UserModel.findOne({ _id: userId })
             .populate({
                 path: "projects",
                 populate: [
-                    { path: "project" },
-                    { path: "role" }
-                ],
+                    { path: "team" },
+                    { path: "projectOwner" },
+                ]
+
             }).select('projects')
             .exec();
 
@@ -52,13 +38,12 @@ const getProjectsBelongsToId = async function (req, res) {
 
 }
 
-
-
 const AddNewProject = async (req, res) => {
     try {
-        const { userId } = req.token
-        const { title, description, expectedDeadLine } = req.body
-        // get role (admin)
+        const { userId } = req.token;
+        const { title, description, expectedDeadLine } = req.body;
+
+        // Get role (admin)
         const getRole = await RoleModel.findOne({ role: 'admin' });
 
         if (!getRole) {
@@ -68,68 +53,62 @@ const AddNewProject = async (req, res) => {
             });
         }
 
-
+        // Create New Team for Project
         const createNewTeam = new TeamModel({
             name: title,
-            description: 'basic team',
-            members: [userId],
+            description: 'Basic team',
+            members: [{
+                user: userId,
+                role: getRole._id
+            }],
         });
-
         await createNewTeam.save();
 
+        // Create Initial Ticket
         const createNewTicket = new TicketModel({
             title: 'Initial Ticket',
-            description: 'Enjoy Planning Your project With Planster',
-
+            description: 'Enjoy planning your project with Planster',
             author: userId,
             expectedDeadLine,
         });
+        await createNewTicket.save(); // Ensure the ticket exists before using its ID
 
+        // Create Initial List (WorkFlow)
         const createNewWorkFlowList = new WorkFlowListModel({
             title: 'Backlog',
             author: userId,
+            list: [createNewTicket._id], // Add ticket ID to list
         });
-        createNewWorkFlowList.list = [createNewTicket._id]
-
         await createNewWorkFlowList.save();
 
-
-        createNewTicket.status = createNewWorkFlowList._id
-
+        // Update ticket status with the workflow list ID
+        createNewTicket.status = createNewWorkFlowList._id;
         await createNewTicket.save();
 
+        // Create Project
         const newProject = new ProjectModel({
             title,
             description,
             expectedDeadLine,
             projectOwner: userId,
-            members: [
-                {
-                    user: userId,
-                    role: getRole._id,
-                    teams: [createNewTeam._id],
-                },
-            ],
+            team: createNewTeam._id,
             list: [createNewWorkFlowList._id],
         });
-        newProject.roomId = newProject._id
 
+        newProject.roomId = newProject._id;
+        await newProject.save();
+
+        // Push project into the user's projects array
         await UserModel.findByIdAndUpdate(userId, {
-            $push: {
-                projects: {
-                    project: newProject._id,
-                    role: getRole._id
-                }
-            }
-        })
+            $push: { projects: newProject._id },
+        });
 
-        const result = await newProject.save();
-        console.log('ss', result);
         res.status(201).json({
             success: true,
             message: 'Project added successfully',
-            data: result,
+            data: newProject,
         });
+
     } catch (error) {
         console.error('Error:', error.message);
         res.status(500).json({
@@ -138,8 +117,6 @@ const AddNewProject = async (req, res) => {
         });
     }
 };
-
-
 
 const getProjectsById = async (req, res) => {
     try {
@@ -275,8 +252,102 @@ const projectMembers = async (req, res) => {
     }
 };
 
+const addNewListIntoProject = async (req, res) => {
+    try {
+        const { userId } = req.token
+        const { projectId } = req.params
+        const { title, } = req.body;
+        if (!title || !userId || !projectId) {
+            return res.status(400).json({
+                success: false,
+                message: `Bad request: ${title} and ${userId} and ${projectId} are required`
+            });
+        }
+        const createNewTicket = new TicketModel({
+            title: 'Initial Ticket',
+
+            author: userId,
+        });
+
+        const createNewWorkFlowList = new WorkFlowListModel({
+            title: title,
+            author: userId,
+            list: [createNewTicket._id]
+        });
+        createNewTicket.status = createNewWorkFlowList._id
+        await createNewTicket.save();
+        await createNewWorkFlowList.save();
 
 
-//  getProjectsList,
+        await ProjectModel.findOneAndUpdate(
+            { _id: projectId },
+            { $push: { list: createNewWorkFlowList._id } },
+            { new: true }
+        ).exec();
+        const response = await ProjectModel.findOne({ _id: projectId }).populate({
+            path: "list",
+            populate: {
+                path: "list",
+            },
+        }).exec();
+        res.status(201).json({
+            success: true,
+            message: 'WorkFlowList Added successfully',
+            data: response
+        })
+    } catch (error) {
+        res.status(500).json({
+            success: false,
+            message: error.message,
+        })
+    }
+}
 
-module.exports = { getProjectsById, AddNewProject, ModifyProject, DeleteProject, getProjectsBelongsToId, projectMembers }
+const addCardToList = async (req, res) => {
+    try {
+        const { projectId } = req.params
+        const { userId } = req.token
+        const { title, description, listId } = req.body
+        const createNewTicket = new TicketModel({
+            title,
+            description,
+            status: listId,
+            author: userId,
+        });
+        await createNewTicket.save()
+
+        await WorkFlowListModel.findByIdAndUpdate(listId,
+            { $addToSet: { list: createNewTicket._id } }
+        )
+        const response = await ProjectModel.findById(projectId).populate({
+            path: "list",
+            populate: {
+                path: "list",
+            },
+        }).exec();
+        res.status(201).json({
+            success: true,
+            message: 'Card Added successfully',
+            data: response
+        })
+
+    } catch (error) {
+        res.status(500).json({
+            success: false,
+            message: error.message,
+        })
+    }
+}
+
+
+
+module.exports = {
+    getProjectsById,
+    AddNewProject,
+    ModifyProject,
+    DeleteProject,
+    getProjectsToUser,
+    projectMembers,
+    addNewListIntoProject,
+    addCardToList
+}

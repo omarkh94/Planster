@@ -2,7 +2,7 @@ import { FieldError } from "react-hook-form";
 
 export interface BaseEntity {
   id?: string;
-  _id?:string;
+  _id?: string;
   isDeleted?: boolean;
   createdAt?: Date;
   updatedAt?: Date;
@@ -44,7 +44,6 @@ export interface Role extends BaseEntity {
   role: "admin" | "supervisor" | "member";
   permissions: Array<string>;
 }
-
 
 export interface CommentType extends BaseEntity {
   description: string;
@@ -88,8 +87,8 @@ export interface ProjectType extends BaseEntity {
   expectedDeadLine: Date;
   members: Array<Member>;
   list: Array<WorkFlowListType>;
-  role?:Role;
-  project?:project;
+  role?: Role;
+  project?: project;
 }
 
 export interface MessageType extends BaseEntity {
@@ -163,6 +162,7 @@ export interface FormItemProps {
   value?: string;
   withForgetPasswordLink?: boolean;
   onForgetPasswordClick?: () => void;
+  disabled?: boolean;
 }
 
 export interface Country {

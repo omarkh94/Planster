@@ -180,40 +180,6 @@ const RegisterModal = () => {
                   trigger={trigger}
                 />
               </div>
-              {/* fourth row */}
-              <div className="flex flex-col md:flex-row gap-4 w-full justify-between">
-                <FormItem
-                  name="Projects"
-                  label={"Projects"}
-                  type="select"
-                  className="md:w-1/2"
-                  inputClass="py-4 min-h-12 w-full "
-                  placeholder="Select"
-                  required
-                  labelClass="uppercase"
-                  options={[
-                    {
-                      label: "Frontend Developer",
-                      value: "Frontend Developer",
-                    },
-                    { label: "Backend Developer", value: "Backend Developer" },
-                    {
-                      label: "Full Stack Developer",
-                      value: "Full Stack Developer",
-                    },
-                    { label: "Software Engineer", value: "Software Engineer" },
-                    { label: "UI/UX Developer", value: "UI/UX Developer" },
-                    { label: "Web Developer", value: "Web Developer" },
-                    {
-                      label: "Mobile App Developer",
-                      value: "Mobile App Developer",
-                    },
-                    { label: "DevOps Engineer", value: "DevOps Engineer" },
-                    { label: "Cloud Engineer", value: "Cloud Engineer" },
-                    { label: "API Developer", value: "API Developer" },
-                  ]}
-                />
-              </div>
               {/* fifth row */}
               <div className="flex flex-col md:flex-row gap-4 w-full justify-between">
                 <FormItem
@@ -238,11 +204,10 @@ const RegisterModal = () => {
                 />
               </div>
               {/* Sixth row */}
-              <div className="flex flex-col md:flex-row gap-4 justify-between items-center ">
+              <div className="flex w-full items-end justify-end ">
                 <button
                   className="flex flex-row gap-2 items-center bg-primary border border-border px-4 py-2 text-white font-semibold"
                   type="submit"
-                  onClick={methods.handleSubmit(onSubmit)}
                   autoFocus
                 >
                   <Send

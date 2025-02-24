@@ -40,14 +40,14 @@ const KanbanBoard: React.FC = () => {
         }
       );
       setProject(response?.data?.data);
-      console.log('response?.data?.data :>> ', response?.data?.data);
+      console.log("response?.data?.data :>> ", response?.data?.data);
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (error: any) {
       setError(error?.message);
     } finally {
       setLoading(false);
     }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [projectId, token]);
 
   useEffect(() => {
@@ -86,7 +86,7 @@ const KanbanBoard: React.FC = () => {
 
   return (
     <DragDropContext onDragEnd={handleDragEnd}>
-      <div className="flex flex-col items-center justify-center w-full gap-4 ">
+      <div className="flex flex-col items-center justify-center w-full gap-4 pb-12">
         <h2 className="text-center text-lg md:text-2xl font-semibold pt-2">
           {project?.title}
         </h2>
@@ -102,7 +102,7 @@ const KanbanBoard: React.FC = () => {
       <Droppable droppableId="board" type="list" direction="horizontal">
         {(provided) => (
           <div
-            className="flex flex-row w-full max-w-screen overflow-x-auto gap-5 scrollbar-hide"
+            className="flex flex-row w-full max-w-screen overflow-x-auto gap-5 pb-12 "
             ref={provided.innerRef}
             {...provided.droppableProps}
           >
@@ -120,7 +120,7 @@ const KanbanBoard: React.FC = () => {
                     className="list"
                   >
                     <WorkFlowList
-                      id={String(listIndex)}
+                      id={listItem._id}
                       title={listItem.title}
                       tickets={listItem.list}
                     />
@@ -130,13 +130,7 @@ const KanbanBoard: React.FC = () => {
             ))}
             {provided.placeholder}
             {/* onCreate={} */}
-            {CreateListModalOpen && (
-              <CreateList
-                onCreate={function (): void {
-                  throw new Error("Function not implemented.");
-                }}
-              />
-            )}
+            {CreateListModalOpen && <CreateList />}
           </div>
         )}
       </Droppable>

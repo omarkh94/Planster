@@ -5,7 +5,7 @@ import { useAuthStore } from "@/store/useAuthStore";
 import { useUser } from "@/store/UserStore";
 import { zodResolver } from "@hookform/resolvers/zod";
 import axios from "axios";
-import { RotateCcw, Send, UserPlus } from "lucide-react";
+import { Loader, RotateCcw, Send, UserPlus } from "lucide-react";
 import { useForm, FormProvider } from "react-hook-form";
 import { jwtDecode } from "jwt-decode";
 import { useState } from "react";
@@ -130,6 +130,19 @@ const LoginModal = () => {
 
               {/* Third row */}
               <div className="flex flex-col md:flex-row gap-4 justify-between items-center ">
+              <button
+                  onClick={() => {
+                    setLoginModalOpen(false);
+                    setForgottenPassOpen(true);
+                  }}
+                  className="flex flex-row items-center bg-transparent text-base  px-4 py-2 text-text "
+                >
+                  <RotateCcw
+                    className="h-4 w-4 mr-2 text-text"
+                    strokeWidth={3}
+                  />
+                  Reset Your Password?
+                </button>
                 <button
                   className="flex flex-row gap-2 items-center bg-primary border border-border px-4 py-2 text-white font-semibold"
                   type="submit"
@@ -140,22 +153,10 @@ const LoginModal = () => {
                     className="h-4 w-4 mr-2 text-secondary"
                     strokeWidth={3}
                   />
-                  {loading ? "Updating..." : "Confirm"}
+                  {loading ? <Loader/> : "Confirm"}
                 </button>
-                <button
-                  onClick={() => {
-                    setLoginModalOpen(false);
-                    setForgottenPassOpen(true);
-                  }}
-                  className="flex flex-row items-center bg-forgottenPass border border-border px-4 py-2 text-white font-semibold"
-                >
-                  <RotateCcw
-                    className="h-4 w-4 mr-2 text-secondary"
-                    strokeWidth={3}
-                  />
-                  Reset Your Password?
-                </button>
-              </div>
+                </div>
+             
             </form>
           </FormProvider>
         </div>

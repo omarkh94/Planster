@@ -16,39 +16,34 @@ const jobTitles = [
 
 
 const UserSchema = new mongoose.Schema(
-    {
-        firstName: { type: String, required: true },
-        lastName: { type: String, required: true },
-        email: { type: String, required: true, unique: true, lowercase: true },
-        jobTitle: { type: String, enum: jobTitles, required: true },
-        phoneNumber: { type: String, required: true },
-        projects: [
-            {
-              project: { type: mongoose.Schema.Types.ObjectId, ref: 'Project' },
-              role: { type: mongoose.Schema.Types.ObjectId, ref: 'Role' }, 
-              
-            }
-          ], 
-        password: { type: String, required: true, min: 8, max: 16 },
-        team: { type: mongoose.Schema.Types.ObjectId, ref: "Team", required: false }, 
-        isDeleted: { type: Boolean, default: false },
-      },
-      { timestamps: true }
-    );
+  {
+    firstName: { type: String, required: true },
+    lastName: { type: String, required: true },
+    email: { type: String, required: true, unique: true, lowercase: true },
+    jobTitle: { type: String, enum: jobTitles, required: true },
+    phoneNumber: { type: String, required: true },
+    projects: [
+      { type: mongoose.Schema.Types.ObjectId, ref: 'Project' }
+    ],
+    password: { type: String, required: true, min: 8, max: 16 },
+    isDeleted: { type: Boolean, default: false },
+  },
+  { timestamps: true }
+);
 
 
 
 
 UserSchema.pre("save", async function (next) {
-    this.email = this.email.toLowerCase()
-    if (!this.isModified("password")) return next();
-    try {
-        const salt = await bcrypt.genSalt(parseInt(process.env.SALT));
-        this.password = await bcrypt.hash(this.password, salt);
-        return next();
-    } catch (error) {
-        return next(error);
-    }
+  this.email = this.email.toLowerCase()
+  if (!this.isModified("password")) return next();
+  try {
+    const salt = await bcrypt.genSalt(parseInt(process.env.SALT));
+    this.password = await bcrypt.hash(this.password, salt);
+    return next();
+  } catch (error) {
+    return next(error);
+  }
 });
 
 

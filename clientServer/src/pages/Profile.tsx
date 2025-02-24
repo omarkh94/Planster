@@ -5,7 +5,7 @@ import { countries } from "@/mock";
 import { profileSchema, ProfileSchema } from "@/schemas/ProfileSchema";
 import { useAuthStore } from "@/store/useAuthStore";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Send } from "lucide-react";
+import { Loader, Send } from "lucide-react";
 import { useForm, FormProvider } from "react-hook-form";
 import { UserType } from "../types/index";
 import { useEffect, useState } from "react";
@@ -14,7 +14,7 @@ import axios from "axios";
 const Profile = () => {
   const { setProfileModalOpen } = useAuthStore();
   const [user, setUser] = useState<UserType | null>(null);
-  const [loading, setLoading] = useState(false); 
+  const [loading, setLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const userId = localStorage.getItem("userId");
   console.log("User ID:", userId);
@@ -37,7 +37,7 @@ const Profile = () => {
     };
     fetchUser();
   }, [userId]);
-  
+
   const methods = useForm<ProfileSchema>({
     resolver: zodResolver(profileSchema),
     mode: "onChange",
@@ -81,13 +81,15 @@ const Profile = () => {
       password: values.password,
     };
 
-    setLoading(true); 
-    setErrorMessage(null); 
+    setLoading(true);
+    setErrorMessage(null);
 
     try {
-      const token = localStorage.getItem("authToken"); 
-      console.log('token :>> ', token);
-      if (!token) {console.log("No token found.");}
+      const token = localStorage.getItem("authToken");
+      console.log("token :>> ", token);
+      if (!token) {
+        console.log("No token found.");
+      }
       const response = await axios.put(
         `${import.meta.env.VITE_APP_API_URL}/users/profile/${userId}`,
         updatedValues,
@@ -95,16 +97,14 @@ const Profile = () => {
           withCredentials: true,
           headers: {
             "Content-Type": "application/json",
-            "Authorization": `Bearer ${token}`, 
+            Authorization: `Bearer ${token}`,
           },
         }
       );
 
-
-     
       if (response.data.success) {
         alert("Profile updated successfully");
-        setProfileModalOpen(false)
+        setProfileModalOpen(false);
       } else {
         setErrorMessage("Failed to update profile.");
       }
@@ -112,7 +112,7 @@ const Profile = () => {
       console.error("Error updating profile:", error);
       setErrorMessage("An error occurred while updating your profile.");
     } finally {
-      setLoading(false); 
+      setLoading(false);
     }
   };
 
@@ -171,7 +171,7 @@ const Profile = () => {
                   name="jobTitle"
                   label={"Job Title"}
                   type="select"
-                  className="w-full"
+                  className="md:w-1/2"
                   inputClass="py-4 min-h-12 w-full "
                   placeholder="Select"
                   required
@@ -197,12 +197,10 @@ const Profile = () => {
                     { label: "Cloud Engineer", value: "Cloud Engineer" },
                     { label: "API Developer", value: "API Developer" },
                   ]}
-                />
-              </div>
-              {/* third row */}
-              <div className="flex flex-col md:flex-row gap-4 w-full justify-between">
+                />{" "}
                 <FormItem
                   name="email"
+                  disabled
                   label={"email"}
                   className="md:w-1/2"
                   inputClass="py-4 min-h-12"
@@ -211,16 +209,16 @@ const Profile = () => {
                   required
                   labelClass="uppercase"
                 />
+              </div>
+              {/* third row */}
+              <div className="flex flex-col md:flex-row gap-4 w-full justify-between">
                 <MobileAndCountryCodeFormInput
                   onChange={onPhoneChange}
                   values={getValues}
                   errors={methods.formState.errors}
                   trigger={trigger}
                   autocomplete="tel"
-                />
-              </div>
-              {/* fourth row */}
-              <div className="flex flex-col md:flex-row gap-4 w-full justify-between">
+                />{" "}
                 <FormItem
                   name="password"
                   type="password"
@@ -233,7 +231,7 @@ const Profile = () => {
                 />
               </div>
               {/* Fourth row */}
-              <div className="flex flex-col md:flex-row gap-4 justify-between items-center ">
+              <div className="flex flex-col md:flex-row gap-4 justify-end items-center ">
                 <button
                   className="flex flex-row gap-2 items-center bg-primary border border-border px-4 py-2 text-white font-semibold"
                   type="submit"
@@ -244,7 +242,7 @@ const Profile = () => {
                     className="h-4 w-4 mr-2 text-secondary"
                     strokeWidth={3}
                   />
-                  {loading ? "Updating..." : "Confirm"}
+                  {loading ? <Loader /> : "Confirm"}
                 </button>
               </div>
             </form>
