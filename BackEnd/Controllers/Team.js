@@ -5,8 +5,15 @@ const getTeamById = async (req, res) => {
     try {
         const { id } = req.params;
         const Card = await TeamModel.findOne({ _id: id }).populate({
-            path: 'members',
-            select: 'firstName lastName email phoneNumber jobTitle _id'
+            path: 'members'
+            , populate: [
+                {
+                    path: 'user',
+                    select: 'firstName lastName email phoneNumber jobTitle _id'
+
+                },
+                { path: 'role' }
+            ],
         }).select('name members _id ').exec();
         res.status(200).json({
             success: true,

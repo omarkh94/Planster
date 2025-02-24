@@ -339,8 +339,47 @@ const addCardToList = async (req, res) => {
     }
 }
 
+const updateProjectOrder = async (req, res) => {
+    try {
+        const { projectId } = req.params;
+        const { updatedProject } = req.body;
+        
+        // First, update the project with the new list order
+        const project = await ProjectModel.findById(projectId);
+        if (!project) {
+            return res.status(404).json({
+                success: false,
+                message: 'Project not found'
+            });
+        }
+        
+        // Update the project's list order
+        project.list = updatedProject.list.map(list => list._id);
+        await project.save();
+        
+        // Now update each list's ticket order
+        for (const listData of updatedProject.list) {
+            await WorkFlowListModel.findByIdAndUpdate(listData._id, {
+                list: listData.list.map(ticket => ticket._id)
+            });
+        }
+        
+        res.status(200).json({
+            success: true,
+            message: 'Project order updated successfully',
+            data: updatedProject
+        });
 
-
+    } catch (error) {
+        console.error('Update project order error:', error);
+        res.status(500).json({
+            success: false,
+            message: process.env.NODE_ENV === 'production'
+                ? 'Server error'
+                : error.message
+        });
+    }
+};
 module.exports = {
     getProjectsById,
     AddNewProject,
@@ -349,5 +388,5 @@ module.exports = {
     getProjectsToUser,
     projectMembers,
     addNewListIntoProject,
-    addCardToList
+    addCardToList, updateProjectOrder
 }

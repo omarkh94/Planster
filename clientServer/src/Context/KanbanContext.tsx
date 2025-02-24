@@ -1,12 +1,15 @@
-import React, {
+"use client";
+
+import type React from "react";
+import {
   createContext,
   useContext,
   useState,
   useCallback,
-  Dispatch,
-  SetStateAction,
+  type Dispatch,
+  type SetStateAction,
 } from "react";
-import { ProjectType, WorkFlowListType, TicketType } from "../types";
+import type { ProjectType, TicketType } from "../types";
 import axios from "axios";
 
 type KanbanContextType = {
@@ -18,23 +21,19 @@ type KanbanContextType = {
   selectedTicket: TicketType | null;
   setProject: (project: ProjectType) => void;
   setSelectedTicket: (ticket: TicketType | null) => void;
-  reorderLists: (startIndex: number, endIndex: number) => Promise<void>;
+  reorderLists: (startIndex: number, endIndex: number) => Promise<ProjectType>;
   reorderTickets: (
     listId: string,
     startIndex: number,
     endIndex: number
-  ) => Promise<void>;
+  ) => Promise<ProjectType>;
   moveTicket: (
     sourceListId: string,
     destListId: string,
     sourceIndex: number,
     destIndex: number
-  ) => Promise<void>;
-  addList: (title: string) => Promise<void>;
-  addTicket: (
-    listId: string,
-    ticketData: { title: string; description: string }
-  ) => Promise<void>;
+  ) => Promise<ProjectType>;
+  updateProject: (updatedProject: ProjectType) => Promise<void>;
 };
 
 const KanbanContext = createContext<KanbanContextType | undefined>(undefined);
@@ -49,70 +48,79 @@ export const KanbanProvider = ({ children }: { children: React.ReactNode }) => {
   });
   const [error, setError] = useState<string | undefined>();
   const [loading, setLoading] = useState<boolean>(false);
+
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const handleError = (error: any) => {
-    setState((prev) => ({
-      ...prev,
-      error: error.message || "An error occurred",
-    }));
-  };
+  const handleError = useCallback((error: any) => {
+    setError(error.message || "An error occurred");
+  }, []);
+
   const reorderLists = useCallback(
-    async (startIndex: number, endIndex: number) => {
-      setState((prev) => ({ ...prev, loading: true }));
+    async (startIndex: number, endIndex: number): Promise<ProjectType> => {
+      setLoading(true);
       try {
-        const lists = Array.from(state.project!.list);
-        const [removed] = lists.splice(startIndex, 1);
-        lists.splice(endIndex, 0, removed);
+        if (!state.project || !Array.isArray(state.project.list)) {
+          throw new Error("Project or list is not properly defined");
+        }
 
-        await axios.patch(`/api/projects/${state.project!._id}/lists/order`, {
-          listOrder: lists.map((list) => list._id),
-        });
+        const lists = Array.from(state.project.list);
+        const [removedList] = lists.splice(startIndex, 1);
+        lists.splice(endIndex, 0, removedList);
 
-        setState((prev) => ({
-          ...prev,
-          project: { ...prev.project!, list: lists },
-        }));
+        const updatedProject = { ...state.project, list: lists };
+        setState((prev) => ({ ...prev, project: updatedProject }));
+        return updatedProject;
       } catch (error) {
         handleError(error);
+        throw error;
       } finally {
-        setState((prev) => ({ ...prev, loading: false }));
+        setLoading(false);
       }
     },
-    [state.project]
+    [state.project, handleError]
   );
-
   const reorderTickets = useCallback(
-    async (listId: string, startIndex: number, endIndex: number) => {
-      setState((prev) => ({ ...prev, loading: true }));
+    async (
+      listId: string,
+      startIndex: number,
+      endIndex: number
+    ): Promise<ProjectType> => {
+      setLoading(true);
       try {
-        const listIndex = state.project!.list.findIndex(
-          (l) => l._id === listId
-        );
-        const tickets = Array.from(
-          state.project!.list[listIndex].list
-        );
+        if (!state.project || !Array.isArray(state.project.list)) {
+          throw new Error("Project or list is not properly defined");
+        }
+
+        const listIndex = state.project.list.findIndex((l) => l._id == listId);
+        if (listIndex === -1) {
+          throw new Error(`List with id ${listId} not found`);
+        }
+
+        const currentList = state.project.list[listIndex];
+        if (!currentList || !Array.isArray(currentList.list)) {
+          throw new Error(
+            `List ${listId} is not properly defined or doesn't have a 'list' property`
+          );
+        }
+
+        const tickets = Array.from(currentList.list);
         const [removed] = tickets.splice(startIndex, 1);
         tickets.splice(endIndex, 0, removed);
 
-        await axios.patch(`/api/lists/${listId}/tickets/order`, {
-          ticketOrder: tickets.map((ticket) => ticket._id),
-        });
-
-        const updatedLists = state.project!.list.map((list) =>
-          list._id === listId ? { ...list, tickets } : list
+        const updatedLists = state.project.list.map((list) =>
+          list._id === listId ? { ...list, list: tickets } : list
         );
 
-        setState((prev) => ({
-          ...prev,
-          project: { ...prev.project!, list: updatedLists },
-        }));
+        const updatedProject = { ...state.project, list: updatedLists };
+        setState((prev) => ({ ...prev, project: updatedProject }));
+        return updatedProject;
       } catch (error) {
         handleError(error);
+        throw error;
       } finally {
-        setState((prev) => ({ ...prev, loading: false }));
+        setLoading(false);
       }
     },
-    [state.project]
+    [state.project, handleError]
   );
 
   const moveTicket = useCallback(
@@ -121,8 +129,8 @@ export const KanbanProvider = ({ children }: { children: React.ReactNode }) => {
       destListId: string,
       sourceIndex: number,
       destIndex: number
-    ) => {
-      setState((prev) => ({ ...prev, loading: true }));
+    ): Promise<ProjectType> => {
+      setLoading(true);
       try {
         const sourceListIndex = state.project!.list.findIndex(
           (l) => l._id === sourceListId
@@ -131,95 +139,56 @@ export const KanbanProvider = ({ children }: { children: React.ReactNode }) => {
           (l) => l._id === destListId
         );
 
-        const sourceTickets = [
-          ...state.project!.list[sourceListIndex].list,
-        ];
+        const sourceTickets = [...state.project!.list[sourceListIndex].list];
         const [movedTicket] = sourceTickets.splice(sourceIndex, 1);
 
-        const destTickets = [
-          ...state.project!.list[destListIndex].list,
-        ];
+        const destTickets = [...state.project!.list[destListIndex].list];
         destTickets.splice(destIndex, 0, movedTicket);
-
-        await axios.patch(`/api/tickets/${movedTicket._id}/move`, {
-          newListId: destListId,
-          newIndex: destIndex,
-        });
 
         const updatedLists = state.project!.list.map((list) => {
           if (list._id === sourceListId)
-            return { ...list, tickets: sourceTickets };
-          if (list._id === destListId) return { ...list, tickets: destTickets };
+            return { ...list, list: sourceTickets };
+          if (list._id === destListId) return { ...list, list: destTickets };
           return list;
         });
 
-        setState((prev) => ({
-          ...prev,
-          project: { ...prev.project!, list: updatedLists },
-        }));
+        const updatedProject = { ...state.project!, list: updatedLists };
+        setState((prev) => ({ ...prev, project: updatedProject }));
+        return updatedProject;
       } catch (error) {
         handleError(error);
+        throw error;
       } finally {
-        setState((prev) => ({ ...prev, loading: false }));
+        setLoading(false);
       }
     },
-    [state.project]
+    [state.project, handleError]
   );
 
-  const addList = useCallback(
-    async (title: string) => {
-      setState((prev) => ({ ...prev, loading: true }));
+  const updateProject = useCallback(
+    async (updatedProject: ProjectType) => {
+      setState((prev) => ({ ...prev, updatedProject }));
+      console.log("updatedProject :>> ", updatedProject);
       try {
-        const { data } = await axios.post<WorkFlowListType>(
-          `/api/projects/${state.project!._id}/lists`,
-          { title }
-        );
-
-        setState((prev) => ({
-          ...prev,
-          project: {
-            ...prev.project!,
-            list: [...prev.project!.list, data],
+        await axios.put(
+          `${import.meta.env.VITE_APP_API_URL}/projects/update/${
+            updatedProject._id
+          }`,
+          {
+            updatedProject: updatedProject,
           },
-        }));
+          {
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${localStorage.getItem("authToken")}`,
+            },
+          }
+        );
       } catch (error) {
         handleError(error);
-      } finally {
-        setState((prev) => ({ ...prev, loading: false }));
       }
     },
-    [state.project]
-  );
-
-  const addTicket = useCallback(
-    async (
-      listId: string,
-      ticketData: { title: string; description: string }
-    ) => {
-      setState((prev) => ({ ...prev, loading: true }));
-      try {
-        const { data } = await axios.post<TicketType>(
-          `/api/lists/${listId}/tickets`,
-          ticketData
-        );
-
-        const updatedLists = state.project!.list.map((list) =>
-          list._id === listId
-            ? { ...list, tickets: [...list.list, data] }
-            : list
-        );
-
-        setState((prev) => ({
-          ...prev,
-          project: { ...prev.project!, list: updatedLists },
-        }));
-      } catch (error) {
-        handleError(error);
-      } finally {
-        setState((prev) => ({ ...prev, loading: false }));
-      }
-    },
-    [state.project]
+    [handleError]
   );
 
   return (
@@ -233,8 +202,7 @@ export const KanbanProvider = ({ children }: { children: React.ReactNode }) => {
         reorderLists,
         reorderTickets,
         moveTicket,
-        addList,
-        addTicket,
+        updateProject,
         error,
         setError,
         loading,

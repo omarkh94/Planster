@@ -213,32 +213,3 @@ module.exports = {
 
 
 
-
-
-
-
-
-
-
-
-
-/*
-
-
-const removeMemberFromProject = async (req, res) => {
-    try {
-        const { projectId, memberId } = req.body;
-        if (req.user.role !== 'admin') {
-            return res.status(403).json({ success: false, message: 'Unauthorized' });
-        }
-        await projectModel.findByIdAndUpdate(projectId, { $pull: { members: { user: memberId } } });
-        res.status(200).json({ success: true, message: 'Member removed from project successfully' });
-    } catch (error) {
-        res.status(500).json({ success: false, message: error.message });
-    }
-};
-
-
-*/
-
-

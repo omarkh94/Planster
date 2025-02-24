@@ -13,13 +13,4 @@ const ProjectSchema = new mongoose.Schema(
   },
   { timestamps: true }
 );
-
-// ProjectSchema.pre("save", function (next) {
-//   if (this.teams) {
-//     this.teams = [...new Set(this.teams.map(team => team.toString()))];
-//   }
-//   next();
-// });
-
-
 module.exports = mongoose.model('Project', ProjectSchema);
