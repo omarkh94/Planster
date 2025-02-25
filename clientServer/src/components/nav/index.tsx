@@ -140,7 +140,7 @@ const NavLayout = ({ children }: { children: React.ReactNode }) => {
                   </Link>
 
                   <Link
-                    to={"/conversation"}
+                    to={"/conversation/67bccbf3464837f342b965b4"}
                     className="flex flex-row items-center gap-2  bg-secondary rounded-sm py-1 px-1 md:px-3  text-primary font-semibold"
                   >
                     <MessageSquareText

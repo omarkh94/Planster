@@ -4,6 +4,7 @@ const WorkFlowListModel = require("../models/WorkFlowListSchema")
 const TicketModel = require("../models/TicketSchema")
 const RoleModel = require("../models/RoleSchema")
 const UserModel = require("../models/UserSchema")
+const { default: mongoose } = require("mongoose")
 
 
 
@@ -201,30 +202,49 @@ const ModifyProject = async (req, res) => {
         });
     }
 };
+
 const DeleteProject = async (req, res) => {
     try {
-        const { id } = req.params;
-
-        const project = await ProjectModel.findOneAndUpdate(
-            { _id: id },
-            {
-                isDeleted: true,
-            },
-            { new: true }
-        ).exec();
-        res.status(200).json({
-            success: true,
-            message: 'Project Deleted Successfully',
-            data: project
-        })
-
+      const { projectId } = req.params;
+  
+      if (!mongoose.Types.ObjectId.isValid(projectId)) {
+        return res.status(400).json({ 
+          success: false, 
+          message: 'Invalid project ID format' 
+        });
+      }
+  
+      const updatedProject = await ProjectModel.findByIdAndUpdate(
+        projectId,
+        { isDeleted: true },
+        { new: true, runValidators: true }
+      ).populate('projectOwner team list roomId');
+  
+      if (!updatedProject) {
+        return res.status(404).json({
+          success: false,
+          message: 'Project not found'
+        });
+      }
+  
+      res.status(200).json({
+        success: true,
+        message: 'Project marked as inactive',
+        data: updatedProject
+      });
+  
     } catch (error) {
-        res.status(500).json({
-            success: false,
-            message: error.message,
-        })
+      console.error('Server error:', error);
+      res.status(500).json({
+        success: false,
+        message: process.env.NODE_ENV === 'production'
+          ? 'Server error'
+          : error.message
+      });
     }
-}
+  };
+  
+ 
 
 
 
@@ -343,8 +363,7 @@ const updateProjectOrder = async (req, res) => {
     try {
         const { projectId } = req.params;
         const { updatedProject } = req.body;
-        
-        // First, update the project with the new list order
+
         const project = await ProjectModel.findById(projectId);
         if (!project) {
             return res.status(404).json({
@@ -352,18 +371,16 @@ const updateProjectOrder = async (req, res) => {
                 message: 'Project not found'
             });
         }
-        
-        // Update the project's list order
+
         project.list = updatedProject.list.map(list => list._id);
         await project.save();
-        
-        // Now update each list's ticket order
+
         for (const listData of updatedProject.list) {
             await WorkFlowListModel.findByIdAndUpdate(listData._id, {
                 list: listData.list.map(ticket => ticket._id)
             });
         }
-        
+
         res.status(200).json({
             success: true,
             message: 'Project order updated successfully',
@@ -380,6 +397,54 @@ const updateProjectOrder = async (req, res) => {
         });
     }
 };
+
+
+
+const ModifyProjectName = async (req, res) => {
+    try {
+        const { projectId } = req.params;
+        const { name } = req.body;
+
+
+
+        const updatedProject = await ProjectModel.findByIdAndUpdate(
+            projectId,
+            { title: name },
+            { new: true }
+        ).populate('projectOwner team list roomId');
+
+        if (!updatedProject) {
+            return res.status(404).json({
+                success: false,
+                message: 'Project not found',
+            });
+        }
+
+        res.status(200).json({
+            success: true,
+            message: 'Project title updated successfully',
+            data: updatedProject,
+        });
+    } catch (error) {
+        console.error('Update error:', error);
+
+        if (error.code === 11000) {
+            return res.status(400).json({
+                success: false,
+                message: 'Project title already exists',
+            });
+        }
+
+        res.status(500).json({
+            success: false,
+            message: process.env.NODE_ENV === 'production' ? 'Server error' : error.message,
+        });
+    }
+};
+
+
+
+
 module.exports = {
     getProjectsById,
     AddNewProject,
@@ -388,5 +453,5 @@ module.exports = {
     getProjectsToUser,
     projectMembers,
     addNewListIntoProject,
-    addCardToList, updateProjectOrder
+    addCardToList, updateProjectOrder, ModifyProjectName
 }

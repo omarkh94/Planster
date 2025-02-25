@@ -3,7 +3,8 @@ const {
      getProjectsById,
      AddNewProject,
      ModifyProject,
-     DeleteProject, projectMembers, getProjectsToUser,addNewListIntoProject,addCardToList,updateProjectOrder } = require("../Controllers/Project");
+     DeleteProject, projectMembers, getProjectsToUser,addNewListIntoProject,addCardToList,updateProjectOrder, 
+     ModifyProjectName} = require("../Controllers/Project");
 
 
 const RolesRouter = require('./RolesRouter')
@@ -22,7 +23,8 @@ ProjectRouter.post("/list/new/:projectId", authentication, addNewListIntoProject
 ProjectRouter.post("/card/new/:projectId", authentication, addCardToList)
 ProjectRouter.put("/:projectId", authentication, ModifyProject)
 ProjectRouter.put("/update/:projectId", authentication, updateProjectOrder)
-ProjectRouter.delete("/:id", authentication, DeleteProject)
+ProjectRouter.put("/modify/:projectId", authentication, ModifyProjectName)
+ProjectRouter.patch("/:projectId", authentication, DeleteProject)
 ProjectRouter.use("/roles", RolesRouter)
 ProjectRouter.use("/:projectId/lists", WorkFlowListRouter);
 module.exports = { ProjectRouter }

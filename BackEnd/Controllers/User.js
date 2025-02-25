@@ -3,7 +3,8 @@ const usersModel = require('../models/UserSchema');
 const TeamModel = require('../models/TeamSchema');
 const projectModel = require('../models/ProjectSchema')
 const bcrypt = require('bcrypt')
-const jwt = require('jsonwebtoken')
+const jwt = require('jsonwebtoken');
+const { default: mongoose } = require('mongoose');
 require("dotenv")
 
 const register = async (req, res) => {
@@ -150,12 +151,32 @@ const deleteProfile = async (req, res) => {
 
 const addUserToTeam = async (req, res) => {
     try {
-        const { userId, teamId } = req.body;
+        console.log('Received body:', req.body);
+        const { userId, roleId } = req.body; // Make sure roleId is passed in the request
+        const { teamId } = req.params;
+        // Validate the teamId and userId as ObjectIds
+        if (!mongoose.Types.ObjectId.isValid(teamId)) {
+            return res.status(400).json({ success: false, message: "Invalid team ID" });
+        }
 
-        // Add user to the team
+        if (!mongoose.Types.ObjectId.isValid(userId)) {
+            return res.status(400).json({ success: false, message: "Invalid user ID" });
+        }
+
+        if (!mongoose.Types.ObjectId.isValid(roleId)) { // Validate the roleId if needed
+            return res.status(400).json({ success: false, message: "Invalid role ID" });
+        }
+
+        // Check if team exists
+        const team = await TeamModel.findById(teamId);
+        if (!team) {
+            return res.status(404).json({ success: false, message: "Team not found" });
+        }
+
+        // Add the user to the team with the role
         const updatedTeam = await TeamModel.findByIdAndUpdate(
             teamId,
-            { $addToSet: { members: userId } }, // Avoid duplicate members
+            { $push: { members: { user: userId, role: roleId } } }, // Push an object with user and role
             { new: true }
         );
 
@@ -163,14 +184,14 @@ const addUserToTeam = async (req, res) => {
             return res.status(404).json({ success: false, message: "Team not found" });
         }
 
-        // Get the project associated with this team
-        const project = await projectModel.findOne({ team: teamId });
+        console.log('Updated Team:', updatedTeam);
 
+        // Check for associated projects and add user to projects if needed
+        const project = await projectModel.findOne({ team: teamId });
         if (project) {
-            // Add the project to the user's projects array
             await usersModel.findByIdAndUpdate(
                 userId,
-                { $addToSet: { projects: project._id } }, // Add single project ID, avoiding duplicates
+                { $addToSet: { projects: project._id } },
                 { new: true }
             );
         }
@@ -182,22 +203,38 @@ const addUserToTeam = async (req, res) => {
         });
 
     } catch (error) {
+        console.error('Error occurred:', error);
         res.status(500).json({ success: false, message: error.message });
     }
 };
 
 
+
+
+
+
+
 const getUsersAreNotInThisProject = async (req, res) => {
     try {
-        const { teamId } = req.params
+        const { teamId } = req.params;
         const { userId } = req.token;
 
-        const users = await TeamModel.find({
-            _id: teamId,
-            members: { $ne: userId }
+        if (!mongoose.Types.ObjectId.isValid(teamId)) {
+            return res.status(400).json({ success: false, message: "Invalid team ID" });
+        }
+
+        const team = await TeamModel.findById(teamId);
+        if (!team) {
+            return res.status(404).json({ success: false, message: "Team not found" });
+        }
+
+        const teamMemberIds = team.members.map(member => member.user.toString());
+
+        const usersNotInTeam = await usersModel.find({
+            _id: { $nin: teamMemberIds }
         });
 
-        res.status(200).json({ success: true, data: users });
+        res.status(200).json({ success: true, data: usersNotInTeam });
 
     } catch (error) {
         res.status(500).json({ success: false, message: error.message });

@@ -15,6 +15,8 @@ type Store = {
   setProjects: (project: ProjectType[]) => void;
   forgottenPassOpen: boolean;
   setForgottenPassOpen: (state: boolean) => void;
+  updateProjectModal: boolean;
+  setUpdateProjectModal: (state: boolean) => void;
   isLoggedIn: boolean;
   setIsLoggedIn: (IsLoggedIn: boolean) => void;
 };
@@ -38,4 +40,6 @@ export const useUser = create<Store>()((set) => ({
   setProjects: (project) => set(() => ({ projects: project })),
   forgottenPassOpen: false,
   setForgottenPassOpen: (state) => set(() => ({ forgottenPassOpen: state })),
+  updateProjectModal: false,
+  setUpdateProjectModal: (state) => set(() => ({ updateProjectModal: state })),
 }));

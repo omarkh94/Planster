@@ -96,12 +96,17 @@ export interface MessageType extends BaseEntity {
   sender: UserType;
   chatRoomId: ProjectType;
   timestamp: Date;
-  seenBy: UserType;
+  seenBy: UserType[];
   teamId: string;
   mentions: UserType[];
   replies: ReplyType[];
   deliveredTo: UserType[];
   notifiedUsers: UserType[];
+}
+export interface ReplyType {
+  content: string;
+  sender: UserType;
+  timestamp: Date;
 }
 
 export interface ChatRoomType {

@@ -6,7 +6,7 @@ const ProjectSchema = new mongoose.Schema(
     description: { type: String, required: true },
     projectOwner: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
     expectedDeadLine: { type: String, required: true },
-    team: { type: mongoose.Schema.Types.ObjectId, ref: 'Team', required: false },
+    team: { type: mongoose.Schema.Types.ObjectId, ref: 'Team', required: true },
     list: [{ type: mongoose.Schema.Types.ObjectId, ref: 'WorkFlowList', required: true }],
     isDeleted: { type: Boolean, default: false },
     roomId: { type: mongoose.Schema.Types.ObjectId, ref: 'ChatRoom', required: true }

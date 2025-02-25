@@ -17,6 +17,6 @@ UserRouter.delete('/profile/:id', authentication, authorization("DELETE_PROFILE"
 UserRouter.put('/team/addUser', authentication, addUserToTeam);
 UserRouter.post('team/getUsers/:teamId', authentication, getUsersAreNotInThisProject)
 
-// Project Routes
+
 
 module.exports = UserRouter;

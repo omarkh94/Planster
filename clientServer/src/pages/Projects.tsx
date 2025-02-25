@@ -5,15 +5,22 @@ import { ListRestart, ListX } from "lucide-react";
 import { useProject } from "@/store/useProject";
 import { useEffect, useState } from "react";
 import axios from "axios";
+import UpdateProject from "@/components/updateProject";
+import { ProjectType } from "@/types";
 
 const Projects = () => {
   const navigate = useNavigate();
+  const [selectedProject, setSelectedProject] = useState<{
+    id: string;
+    name: string;
+  } | null>(null);
   const token = localStorage.getItem("authToken");
   const userId = localStorage.getItem("userId");
-  const { setDialogOpen } = useUser();
+  const { setDialogOpen, setUpdateProjectModal } = useUser();
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const { projects, setProjects } = useProject();
+
   const fetchProjects = async () => {
     try {
       const response = await axios.get(
@@ -25,7 +32,7 @@ const Projects = () => {
           },
         }
       );
-      setProjects(response.data.data.projects);
+      setProjects(response.data.data.projects || []);
       setLoading(false);
     } catch (error: any) {
       setLoading(false);
@@ -43,6 +50,34 @@ const Projects = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [userId, token, setProjects]);
 
+  const handleDelete = async (projectId: string) => {
+    try {
+      if (!window.confirm("Are you sure you want to delete this project?"))
+        return;
+
+      // Change to PATCH request
+      await axios.patch<{ data: ProjectType }>(
+        `${import.meta.env.VITE_APP_API_URL}/projects/${projectId}`,
+        { isDeleted: true },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+        }
+      );
+
+      // Update state properly
+      setProjects((prevProjects: ProjectType[]) =>
+        prevProjects.map((project) =>
+          project._id === projectId ? { ...project, isDeleted: true } : project
+        )
+      );
+    } catch (error) {
+      console.error("Delete error:", error);
+      setError("Failed to update project status");
+    }
+  };
   return (
     <div className="flex flex-col items-center gap-12">
       <h1 className="text-4xl font-bold font-caveat">Projects</h1>
@@ -82,11 +117,15 @@ const Projects = () => {
               </tr>
             ) : (
               projects.map((project: any) => {
-                return !project.project?.isDeleted ? (
+                return (
                   <tr key={project?._id} className="bg-white hover:bg-gray-100">
                     <td
                       className="ps-2 underline cursor-pointer w-[12%] px-2 truncate"
-                      onClick={() => navigate(`/project/${project?._id}`)}
+                      onClick={() => {
+                        if (!project?.isDeleted) {
+                          navigate(`/project/${project?._id}`);
+                        }
+                      }}
                     >
                       {project?.title}
                     </td>
@@ -104,8 +143,10 @@ const Projects = () => {
                       <span
                         className="cursor-pointer underline text-blue-600 hover:text-blue-800 block"
                         onClick={(e) => {
-                          e.stopPropagation();
-                          navigate(`/team/${project.team._id}`);
+                          if (!project?.isDeleted) {
+                            e.stopPropagation();
+                            navigate(`/team/${project.team._id}`);
+                          }
                         }}
                       >
                         {project.team.name}
@@ -124,7 +165,14 @@ const Projects = () => {
                           <div className="flex flex-col py-2 gap-2">
                             <button
                               className="flex flex-row items-center gap-2 bg-secondary text-primary border py-1 px-3 border-border p-2 outline-none font-semibold"
-                              onClick={() => {}}
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                setSelectedProject({
+                                  id: project._id,
+                                  name: project.title,
+                                });
+                                setUpdateProjectModal(true);
+                              }}
                             >
                               <ListRestart
                                 className="h-5.5 w-5.5 mr-0 lg:mr-2 text-primary"
@@ -136,7 +184,10 @@ const Projects = () => {
                             </button>
                             <button
                               className="flex flex-row items-center gap-2 bg-danger text-secondary border py-1 px-3 border-border p-2 outline-none font-semibold"
-                              onClick={() => {}}
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                handleDelete(project._id);
+                              }}
                             >
                               <ListX
                                 className="h-5.5 w-5.5 mr-0 lg:mr-2 text-secondary"
@@ -151,7 +202,7 @@ const Projects = () => {
                       </td>
                     </>
                   </tr>
-                ) : null;
+                );
               })
             )}
           </tbody>
@@ -167,6 +218,16 @@ const Projects = () => {
       >
         Create New Project
       </button>
+      {selectedProject && (
+        <UpdateProject
+          projectId={selectedProject.id}
+          initialName={selectedProject.name}
+          onClose={() => {
+            setSelectedProject(null);
+            setUpdateProjectModal(false);
+          }}
+        />
+      )}
     </div>
   );
 };

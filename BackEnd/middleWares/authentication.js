@@ -14,7 +14,6 @@ const authentication = (req, res, next) => {
 
     try {
         const verifiedToken = jwt.verify(token, process.env.SECRET);
-        console.log('verifiedToken :>> ', verifiedToken);
 
         if (Object.keys(verifiedToken)?.length > 0) {
             req.token = verifiedToken;

@@ -1,13 +1,19 @@
 const express = require('express');
-const messageRouter = express.Router()
-
-
-const { getAllMessages, saveMessage, createMessage, getMessagesByRoomId } = require('../Controllers/Messages');
+const messageRouter = express.Router();
+const { 
+  getAllMessages, 
+  createMessage, 
+  getMessagesByTeamId, 
+  addReply, 
+  addMention 
+} = require('../Controllers/Messages');
 const authentication = require('../middleWares/authentication');
 
-messageRouter.get('/',getAllMessages)
-messageRouter.post('/save',saveMessage)
-messageRouter.post('/create',createMessage)
+messageRouter.use(authentication); // Apply authentication middleware to all routes
 
+messageRouter.get('/:teamId', getAllMessages);
+messageRouter.post('/create', createMessage);
+messageRouter.post('/:messageId/reply', addReply);
+messageRouter.post('/:messageId/mention', addMention);
 
-module.exports = messageRouter
+module.exports = messageRouter;

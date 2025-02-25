@@ -1,177 +1,95 @@
-const mongoose = require("mongoose");
-const {getMessagesByRoomId} = require("./Controllers/Messages.js")
-const Message = require("./models/MessageSchema.js") 
-let users = [];
+const { Server } = require("socket.io");
+const { createMessage, getMessagesByTeamId, deleteMessage } = require("./Controllers/Messages");
 
-const pushNotifications = (notifiedUsers, message, io) => {
-  notifiedUsers.forEach(userId => {
-      const user = getUser(userId); 
+const initSocketServer = (server) => {
+  const io = new Server(server, {
+    cors: {
+      origin: ['http://localhost:5173', 'http://192.168.1.24:5173'],
+      methods: ["GET", "POST"],
+      credentials: true
+    }
+  });
+
+  io.on("connection", (socket) => {
+    console.log("A user connected");
+
+    socket.on("JOIN_ROOM", async ({ teamId, userId }) => { // Changed param to teamId
+      if (!teamId) {
+        console.error("Missing teamId in JOIN_ROOM");
+        return;
+      }
       
-      if (user) {
-          io.to(user.socketId).emit("PUSH_NOTIFICATION", {
-              title: "📩 New Messages",
-              body: message.content,
-              chatRoomId: message.chatRoomId,
-              sender: message.sender,
-              timestamp: message.timestamp,
-          });
-          console.log(`🔔 ${userId}`);
-      } else {
-          console.log(`⚠️  ${userId}`);
+      socket.join(teamId);
+      console.log(`User ${userId} joined team: ${teamId}`);
+
+      try {
+        const messages = await getMessagesByTeamId(teamId);
+        socket.emit("INITIAL_MESSAGES", messages);
+      } catch (error) {
+        console.error("Error fetching initial messages:", error);
       }
-  });
-};
+    });
 
+    socket.on("SEND_MESSAGE", async (data) => {
+      try {
+        // Validate required fields
+        if (!data?.teamId) throw new Error("Team ID is required");
+        if (!data?.message?.trim()) throw new Error("Message content is required");
+        if (!data?.userId) throw new Error("User ID is required");
 
+        const savedMessage = await createMessage({
+          body: {
+            content: data.message,
+            teamId: data.teamId,
+            mentions: data.mentions || [],
+            replyTo: data.replyTo || null
+          },
+          user: { _id: data.userId }
+        });
 
+        // Populate sender data before emitting
+        const populatedMessage = await savedMessage
+          .populate('sender', 'firstName lastName')
+          .execPopulate();
 
-
-
-const addUser = (userId, socketId) => {
-  !users.some((user) => user.userId == userId) &&
-    users.push({ userId, socketId });
-};
-
-const removeUser = (socketId) => {
-  users = users.filter((user) => user.socketId != socketId);
-};
-
-const getUser = (userId) => {
-  return users.find((user) => user.userId == userId);
-};
- const initChatRoom = (socket, io, rooms) => {
-  socket.removeAllListeners("joinRoom");
-  socket.removeAllListeners("disconnect");
-
-
-  socket.on("JOIN_ROOM", async ({ roomId, userId }) => {
-    console.log(`User ${userId} joined room: ${roomId}`);
-    socket.join(roomId);
-
-    try {
-      const roomMessages = await getMessagesByRoomId(roomId);
-      if (roomMessages.length > 0) {
-        io.to(roomId).emit("INITIAL_MESSAGES", roomMessages);
-      } else {
-        const defaultMessage = {
-          id: `${Date.now()}`,
-          content: "No messages yet. Be the first to send a message!",
-          sender: { id: "system", name: "System" },
-          chatRoomId: roomId,
-          mentions: [],
-          replies: [],
-          seenBy: [],
-          deliveredTo: [],
-          notifiedUsers: [],
-          timestamp: new Date().toISOString(),
-        };
-        io.to(roomId).emit("INITIAL_MESSAGES", [defaultMessage]);
+        io.to(data.teamId).emit("RECEIVE_MESSAGE", {
+          ...populatedMessage.toObject(),
+          id: populatedMessage._id.toString(),
+          teamId: data.teamId
+        });
+        
+      } catch (error) {
+        console.error("Error sending message:", error.message);
+        socket.emit("MESSAGE_ERROR", {
+          error: error.message,
+          teamId: data?.teamId
+        });
       }
-    } catch (error) {
-      console.error("❌: Something went wrong fetching messages", error);
-    }
-  });
+    });
 
-
-
-
-  socket.on('CREATE_ROOM', ({ roomId, userId }) => {
-    if (rooms[roomId] != null && !rooms[roomId]?.users?.includes(userId)) {
-      rooms[roomId]?.users?.push(userId)
-
-    } else {
-      rooms[roomId] = { users: [userId] }
-    }
-    socket.join(roomId)
-    console.log('rooms :>> ', rooms);
-
-  })
-  socket.on("ADD_USER", (userId) => {
-    const userRoomId = getUser(userId)?.roomId || 'defaultRoom';
-    const messages = rooms[userRoomId]?.messages || [];
-
-    console.log(`Emitting initial messages for room ${userRoomId}:`, messages);
-    socket.emit("GET_DATA", { messages });
-  });
-
-
-
-
-  socket.on("SEND_MESSAGE", async ({ roomId, message, userId, from, mentions, replyTo }) => {
-    if (!rooms[roomId]) {
-        rooms[roomId] = { messages: [], users: [], projectMembers: [] };
-    }
-    
-    console.log('Received message:', message);
-  
-    const usersInRoom = rooms[roomId].users || [];
-    const projectMembers = rooms[roomId].projectMembers || [];
-    const notifiedUsers = projectMembers.filter(memberId => !usersInRoom.includes(memberId));
-  
-    try {
-      const messageData = {
-        sender: userId ? new mongoose.Types.ObjectId(userId) : undefined,  
-        chatRoomId: roomId ? new mongoose.Types.ObjectId(roomId) : undefined, 
-        content: message || "",     
-        mentions: mentions || [],    
-        replyTo: replyTo || []       
-      };
-  
-      const newMessage = new Message(messageData);
-      
-      const savedMessage = await newMessage.save();
-  
-      const broadcastMessage = {
-        id: savedMessage._id.toString(),
-        content: savedMessage.content,
-        sender: { id: savedMessage.sender, name: from },
-        chatRoomId: savedMessage.chatRoomId,
-        mentions: savedMessage.mentions,
-        replies: savedMessage.replyTo,
-        seenBy: [],
-        deliveredTo: usersInRoom,
-        notifiedUsers,
-        timestamp: savedMessage.timestamp,
-      };
-  
-      rooms[roomId].messages.push(broadcastMessage);
-  
-      pushNotifications(notifiedUsers, broadcastMessage, io);
-  
-      io.to(roomId).emit("RECEIVE_MESSAGE", broadcastMessage);
-    } catch (error) {
-      console.error("❌: Error While Saving Message", error);
-    }
-  });
-
-
-  
-
-
-
-  socket.on("DELETE_MESSAGE", ({ roomId, messageId }) => {
-    if (rooms[roomId]) {
-      const message = rooms[roomId].messages.find(msg => msg.id === messageId);
-
-      if (message) {
-        message.isDeleted = true;
-        io.to(roomId).emit("RECEIVE_MESSAGE", rooms[roomId].messages);
+    socket.on("DELETE_MESSAGE", async ({ teamId, messageId, userId }) => { // Changed to teamId
+      try {
+        if (!teamId || !messageId || !userId) {
+          throw new Error("Missing required parameters for deletion");
+        }
+        
+        await deleteMessage({ 
+          params: { messageId }, 
+          user: { _id: userId } 
+        });
+        
+        io.to(teamId).emit("MESSAGE_DELETED", messageId);
+      } catch (error) {
+        console.error("Error deleting message:", error.message);
       }
-    }
+    });
+
+    socket.on("disconnect", () => {
+      console.log("A user disconnected");
+    });
   });
 
+  return io;
+};
 
-
-
-
-
-
-  socket.on("disconnect", () => {
-    console.log("a user disconnected!");
-    removeUser(socket.id);
-    io.emit("GET_USERS", users);
-  });
-
-}
-
-module.exports = {initChatRoom} 
+module.exports = { initSocketServer };

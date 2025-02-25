@@ -2,6 +2,8 @@ import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import axios from "axios";
 import InviteTeamMember from "@/components/InviteTeamMember";
+import { PlusIcon } from "lucide-react";
+import { Button } from "@/components/ui";
 
 const TeamTable = () => {
   const { teamId } = useParams();
@@ -12,12 +14,21 @@ const TeamTable = () => {
     name: string;
     _id: string;
   };
+  
   type MemberType = {
-    email: string;
-    firstName: string;
-    jobTitle: string;
-    lastName: string;
-    phoneNumber: string;
+    user: {
+      _id: string;
+      firstName: string;
+      lastName: string;
+      email: string;
+      jobTitle: string;
+      phoneNumber: string;
+    };
+    role: {
+      _id: string;
+      role: string;
+      permissions: string[];
+    };
     _id: string;
   };
   const [teams, setTeams] = useState<TeamType>({} as TeamType);
@@ -67,39 +78,34 @@ const TeamTable = () => {
               </tr>
             </thead>
             <tbody className="text-base font-light">
-              {teams?.members?.map((member, index) => (
-                <>
-                  <tr key={index} className="bg-white hover:bg-gray-100">
-                    <td className="w-[25%] text-start px-2 py-4">
-                      {member.firstName} {member.lastName}
-                    </td>
-                    <td className="w-[25%] text-start px-2">
-                      {member.jobTitle}
-                    </td>
-                    <td className="w-[25%] text-start px-2">{member.email}</td>
-                    <td className="w-[25%] text-start px-2">
-                      {member.phoneNumber}
-                    </td>
-                  </tr>
-                  <tr>
-                    <td>
-                      <div className="w-full h-[1px] bg-gray-300"></div>
-                    </td>
-                  </tr>
-                </>
+              {teams?.members?.map((member) => (
+                <tr key={member._id} className="bg-white hover:bg-gray-100">
+                  <td className="w-[25%] text-start px-2 py-4">
+                    {member.user.firstName} {member.user.lastName}
+                  </td>
+                  <td className="w-[25%] text-start px-2">
+                    {member.user.jobTitle}
+                  </td>
+                  <td className="w-[25%] text-start px-2">
+                    {member.user.email}
+                  </td>
+                  <td className="w-[25%] text-start px-2">
+                    {member.user.phoneNumber}
+                  </td>
+                </tr>
               ))}
             </tbody>
           </table>
         </div>
 
-        <button
+        <Button
           className="bg-primary text-white p-2 rounded-md"
           onClick={() => {
             setTeamModalOpen(true);
           }}
         >
-          Invite Member
-        </button>
+          Add Team member <PlusIcon />
+        </Button>
       </div>
       {teamModalOpen && (
         <InviteTeamMember setTeamModalOpen={setTeamModalOpen} />
@@ -109,3 +115,5 @@ const TeamTable = () => {
 };
 
 export default TeamTable;
+
+

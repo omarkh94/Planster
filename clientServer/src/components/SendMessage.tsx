@@ -4,7 +4,7 @@ import { Socket } from "socket.io-client";
 
 interface SendMessageProps {
   socketRef: React.RefObject<Socket | null>;
-  roomId: string | null;
+  teamId: string | null;
   userId: string | null;
   selectedMessage: MessageType | null;
   onCancelReply: () => void;
@@ -12,67 +12,69 @@ interface SendMessageProps {
 
 const SendMessage: React.FC<SendMessageProps> = ({
   socketRef,
-  roomId,
+  teamId,
   userId,
   selectedMessage,
   onCancelReply,
 }) => {
-  const [cloud, setCloud] = useState<string>("");
+  const [content, setContent] = useState<string>("");
 
   const extractMentions = (message: string) => {
     const mentions = message.match(/@([a-zA-Z0-9_]+)/g) || [];
-    return mentions.map((mention) => mention.slice(1));
+    return mentions.map(mention => mention.slice(1));
   };
 
   const handleSend = () => {
-    if (socketRef.current && roomId && userId && cloud.trim()) {
-      const mentions = extractMentions(cloud);
-      const replyTo = selectedMessage?.id;
-      
+    if (!socketRef.current || !content.trim() || !teamId || !userId) return;
+
+    try {
       socketRef.current.emit("SEND_MESSAGE", {
-        roomId,
-        message: cloud,  
-        from: localStorage.getItem("name"),
-        userId,
-        mentions,
-        replyTo,
+        teamId: teamId,
+        message: content,
+        userId: userId,
+        mentions: extractMentions(content),
+        replyTo: selectedMessage?.id || null
       });
 
-      setCloud("");  
-      onCancelReply(); 
-    } else {
-      console.log("Error: Missing required fields (roomId, userId, or message content).");
+      setContent("");
+      onCancelReply();
+    } catch (error) {
+      console.error("Error sending message:", error);
     }
   };
 
   return (
-    <div className="drop-shadow-lg bg-secondary  w-full flex flex-col gap-2 items-center p-1 px-4 ">
-      {selectedMessage?.id && (
+    <div className="drop-shadow-lg bg-secondary w-full flex flex-col gap-2 items-center p-1 px-4">
+      {selectedMessage && (
         <div className="w-full flex flex-row justify-between">
-          <p className="replying-to">
-            Replying to : {selectedMessage?.sender?.firstName}
+          <p className="text-sm text-gray-600">
+            Replying to: {selectedMessage.sender?.firstName || 'Unknown'}
           </p>
+          <button
+            onClick={onCancelReply}
+            className="text-sm text-red-600 hover:underline"
+          >
+            Cancel
+          </button>
         </div>
       )}
-      <div className="w-full flex flex-row gap-2 items-center  justify-center">
+      
+      <div className="w-full flex flex-row gap-2 items-center justify-center">
         <input
           type="text"
-          value={cloud}
-          className="w-full bg-transparent outline-none py-2"
-          onChange={(e) => setCloud(e.target.value)}
+          value={content}
+          className="w-full bg-transparent outline-none py-2 border-b border-gray-300 focus:border-primary"
+          onChange={(e) => setContent(e.target.value)}
           onKeyPress={(e) => e.key === "Enter" && handleSend()}
           placeholder="Type a message..."
         />
-        <div className="flex flex-row gap-2 items-center justify-center">
-          <button className="p-2 border text-primary border-gray-300 rounded-md" onClick={handleSend}>
-            Send
-          </button>
-          {selectedMessage?.id && (
-            <button className="p-2 border text-primary border-gray-300 rounded-md" onClick={onCancelReply}>
-              Cancel
-            </button>
-          )}
-        </div>
+        <button
+          className="p-2 bg-primary text-white rounded-md hover:bg-primary/80 disabled:opacity-50"
+          onClick={handleSend}
+          disabled={!content.trim()}
+        >
+          Send
+        </button>
       </div>
     </div>
   );

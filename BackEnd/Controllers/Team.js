@@ -3,8 +3,8 @@ const TeamModel = require("../models/TeamSchema")
 
 const getTeamById = async (req, res) => {
     try {
-        const { id } = req.params;
-        const Card = await TeamModel.findOne({ _id: id }).populate({
+        const { teamId } = req.params;
+        const Card = await TeamModel.findOne({ _id: teamId }).populate({
             path: 'members'
             , populate: [
                 {

@@ -1,6 +1,5 @@
 import React from "react";
 import { Mail, Phone, MapPin, Send } from "lucide-react";
-import "../style/scroll.css"
 
 const ContactSupport: React.FC = () => {
   return (
