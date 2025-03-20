@@ -61,7 +61,7 @@ const TicketContent = ({
           {selectedTicket?.updatedAt && (
             <>
               <span>•</span>
-              <span>Updated {selectedTicket?.updatedAt?.toLocaleDateString()}</span>
+              <span>Updated {new Date(selectedTicket?.updatedAt)?.toLocaleDateString()}</span>
             </>
           )}
         </div>
@@ -150,7 +150,7 @@ const TicketContent = ({
                 <User size={16} className="text-gray-500" />
               </div>
               <span className="text-gray-900 font-medium">
-                {selectedTicket?.assignee.firstName}
+                {selectedTicket?.assignee?.firstName}
               </span>
             </div>
           </div>

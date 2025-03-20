@@ -3,7 +3,7 @@ const jwt = require('jsonwebtoken');
 require('dotenv').config();
 
 const authentication = (req, res, next) => {
-    const token = req?.headers?.authorization?.split('Bearer ').pop() ;
+    const token = req?.headers?.authorization?.split('Bearer ').pop();
 
     if (!token) {
         return res.status(403).json({
@@ -11,6 +11,12 @@ const authentication = (req, res, next) => {
             message: "Forbidden"
         });
     }
+
+
+
+
+
+
 
     try {
         const verifiedToken = jwt.verify(token, process.env.SECRET);
@@ -27,9 +33,12 @@ const authentication = (req, res, next) => {
     } catch (error) {
         return res.status(403).json({
             success: false,
-            message: "The token is invalid or expired"
+            message: "The token is invalid or expired",
+            data: error.message
         });
     }
 };
 
 module.exports = authentication;
+
+

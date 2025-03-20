@@ -1,4 +1,5 @@
-// import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
+"use client";
+
 import { useAuthStore } from "@/store/useAuthStore";
 import { useUser } from "@/store/UserStore";
 import {
@@ -10,80 +11,90 @@ import {
   UserPlus,
   DoorOpen,
 } from "lucide-react";
-import React from "react";
+import type React from "react";
+import { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useLocation } from "react-router-dom";
+import axios from "axios";
+import { Dropdown } from "antd";
+import { ChevronDown } from "lucide-react";
+
+interface Project {
+  _id: string;
+  title: string;
+  team: {
+    _id: string;
+  };
+  isDeleted:boolean;
+}
 
 const NavLayout = ({ children }: { children: React.ReactNode }) => {
   const navigate = useNavigate();
   const location = useLocation();
-  // const navItems = [
-  // { icon: <FolderKanban/>, label: "Projects", href: "/projects" },
-  // { icon: <Settings/>, label: "Settings", href: "/settings" },
-  // ];
+  const [projects, setProjects] = useState<Project[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
   const { setRegisterModalOpen, setLoginModalOpen, setProfileModalOpen } =
     useAuthStore();
   const { isLoggedIn, setDialogOpen, setIsLoggedIn } = useUser();
 
+  useEffect(() => {
+    const fetchProjects = async () => {
+      const token = localStorage.getItem("authToken");
+      const userId = localStorage.getItem("userId");
+      setLoading(true);
+      setError(null);
+      try {
+        const response = await axios.get<{ data: { projects: Project[] } }>(
+          `${import.meta.env.VITE_APP_API_URL}/projects/${userId}`,
+          {
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        );
+        setProjects(response.data.data.projects || []);
+      } catch (error) {
+        console.error("error :>> ", error);
+        setError("Failed to load projects. Please try again later.");
+      } finally {
+        setLoading(false);
+      }
+    };
 
- const handleLogout = ()=>{
-  setIsLoggedIn(false);
-  localStorage.removeItem("authToken");
-  localStorage.removeItem("userId");
-  navigate(`/`);
- }
+    if (isLoggedIn) {
+      fetchProjects();
+    } else {
+      setProjects([]);
+      setLoading(false);
+    }
+  }, [isLoggedIn]);
 
+  const handleLogout = () => {
+    setIsLoggedIn(false);
+    localStorage.removeItem("authToken");
+    localStorage.removeItem("userId");
+    navigate(`/`);
+  };
 
-  // const MobileMenu = () => (
-  //   <Sheet>
-  //     <SheetTrigger asChild>
-  //       <button className="md:bg-secondary rounded-sm p-2">
-  //         <Menu size={16} />
-  //       </button>
-  //     </SheetTrigger>
-  //     <SheetContent side="right" className="w-[80%] xs:w-[60%] sm:w-[40%]  p-3">
-  //       <div className="">
-  //         <a href="/" className="font-semibold text-xl text-border font-caveat">
-  //           PLANSTER
-  //         </a>
-  //       </div>
-  //       <div className="h-full flex flex-col bg-white">
-  //         {/* Navigation Items */}
-  //         <div className="flex-1 overflow-auto py-4">
-  //           {navItems.map((item) => (
-  //             <a
-  //               key={item.href}
-  //               href={item.href}
-  //               className="flex items-center gap-2 px-4 py-3 text-gray-700 hover:bg-gray-100 transition-colors"
-  //               onClick={() => close()}
-  //             >
-  //               <item.icon size={20} />
-  //               <span>{item.label}</span>
-  //             </a>
-  //           ))}
-  //         </div>
+  const handleProjectSelect = (projectId: string) => {
+    const selectedProject = projects.find(
+      (project) => project._id === projectId
+    );
+    if (selectedProject) {
+      navigate(`/conversation/${selectedProject.team._id}`);
+    }
+  };
 
-  //         {/* Auth Buttons */}
-  //         <div className="border-t p-4 pb-8 flex flex-col gap-2">
-  //           <button
-  //             className=" flex flex-row items-center gap-2 bg-secondary rounded-sm py-2 px-3 text-primary font-semibold"
-  //             onClick={() => setLoginModalOpen(true)}
-  //           >
-  //             <LogIn className="h-4 w-4 mr-2 text-primary" strokeWidth={3} />
-  //             Login
-  //           </button>
-  //           <button
-  //             className=" flex flex-row items-center gap-2 bg-secondary rounded-sm py-2 px-3 text-primary font-semibold"
-  //             onClick={() => setRegisterModalOpen(true)}
-  //           >
-  //             <UserPlus className="h-4 w-4 mr-2 text-primary" strokeWidth={3} />
-  //             Sign up
-  //           </button>
-  //         </div>
-  //       </div>
-  //     </SheetContent>
-  //   </Sheet>
-  // );
+  const projectMenuItems = projects
+  .filter((project) => !project.isDeleted) 
+  .map((project) => ({
+    key: project._id,
+    label: project.title,
+    onClick: () => handleProjectSelect(project._id),
+  }))
 
   return (
     <div className="min-h-screen flex flex-col font-glory">
@@ -99,20 +110,6 @@ const NavLayout = ({ children }: { children: React.ReactNode }) => {
               >
                 PLANSTER
               </a>
-
-              {/* Desktop Navigation */}
-              {/* <nav className="md:flex items-center gap-6">
-                {navItems.map((item) => (
-                  <a
-                    key={item.href}
-                    href={item.href}
-                    className="text-sm text-white hover:text-gray-900 transition-colors"
-                  >
-                    {item.icon}
-                    {item.label}
-                  </a>
-                ))}
-              </nav> */}
             </div>
 
             {/* Right Section */}
@@ -135,20 +132,27 @@ const NavLayout = ({ children }: { children: React.ReactNode }) => {
                     className="flex flex-row items-center gap-2  bg-secondary rounded-sm py-1 px-1 md:px-3  text-primary font-semibold"
                   >
                     <Kanban className="h-5.5 w-5.5" strokeWidth={3} />
-
                     <span className="hidden px-1 lg:flex">Projects</span>
                   </Link>
-
-                  <Link
-                    to={"/conversation/67bccbf3464837f342b965b4"}
-                    className="flex flex-row items-center gap-2  bg-secondary rounded-sm py-1 px-1 md:px-3  text-primary font-semibold"
-                  >
-                    <MessageSquareText
-                      className="h-5.5 w-5.5 text-primary"
-                      strokeWidth={3}
-                    />
-                    <span className="hidden px-1 lg:flex">Messages</span>
-                  </Link>
+                  {loading ? (
+                    <div>Loading projects...</div>
+                  ) : error ? (
+                    <div>{error}</div>
+                  ) : projects.length > 0  ? (
+                    <Dropdown
+                      menu={{ items: projectMenuItems }}
+                      trigger={["click"]}
+                    >
+                      <button className="flex flex-row items-center gap-2 bg-secondary rounded-sm py-1 px-1 md:px-3 text-primary font-semibold">
+                        <MessageSquareText
+                          className="h-5.5 w-5.5 text-primary"
+                          strokeWidth={3}
+                        />
+                        <span className="hidden px-1 lg:flex">Messages</span>
+                        <ChevronDown className="h-4 w-4 text-primary" />
+                      </button>
+                    </Dropdown>
+                  ) : null}
                   <button
                     className="flex flex-row items-center gap-2 bg-secondary rounded-sm py-1 px-1 md:px-3 text-primary font-semibold"
                     onClick={() => setProfileModalOpen(true)}
@@ -161,7 +165,7 @@ const NavLayout = ({ children }: { children: React.ReactNode }) => {
                   </button>
                   <button
                     className="flex flex-row items-center gap-2 bg-secondary rounded-sm py-1 px-1 md:px-3 text-primary font-semibold"
-                    onClick={() => handleLogout()}
+                    onClick={handleLogout}
                   >
                     <DoorOpen
                       className="h-5.5 w-5.5 mr-0 lg:mr-2 text-primary"
@@ -195,8 +199,6 @@ const NavLayout = ({ children }: { children: React.ReactNode }) => {
                       <span className="hidden px-1 lg:flex">Sign up</span>
                     </button>
                   </div>
-                  {/* Mobile Menu */}
-                  {/* <MobileMenu /> */}
                 </>
               )}
             </div>

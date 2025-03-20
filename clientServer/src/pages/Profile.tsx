@@ -1,15 +1,26 @@
 import { FormItem } from "@/common/FormItem";
 import { MobileAndCountryCodeFormInput } from "@/common/MobileAndCountryCodeFormInput";
 import ModalWithChildren from "@/common/ModalWithChildren";
-import { countries } from "@/mock";
+// import { countries } from "@/mock";
 import { profileSchema, ProfileSchema } from "@/schemas/ProfileSchema";
 import { useAuthStore } from "@/store/useAuthStore";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Loader, Send } from "lucide-react";
 import { useForm, FormProvider } from "react-hook-form";
-import { UserType } from "../types/index";
+import { Country, UserType } from "../types/index";
 import { useEffect, useState } from "react";
 import axios from "axios";
+
+const countries: Country[] = [
+  { code: "US", dialCode: "+1", name: "United States" },
+  { code: "JO", dialCode: "+962", name: "Jordan" },
+  { code: "CA", dialCode: "+4", name: "Canada" },
+  { code: "GB", dialCode: "+44", name: "United Kingdom" },
+  { code: "IN", dialCode: "+91", name: "India" },
+];
+
+
+
 
 const Profile = () => {
   const { setProfileModalOpen } = useAuthStore();
@@ -17,16 +28,23 @@ const Profile = () => {
   const [loading, setLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const userId = localStorage.getItem("userId");
-
-  useEffect(() => {
-    const fetchUser = async () => {
-      if (!userId) return;
-      try {
+  console.log('userId :>> ', userId);
+  
+  const fetchUser = async () => {
+    if (!userId) return;
+    try {
+        const token = localStorage.getItem("authToken");
         const response = await axios.get(
-          `${import.meta.env.VITE_APP_API_URL}/users/${userId}`
+          `${import.meta.env.VITE_APP_API_URL}/users/${userId}`,
+          {
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${token}`,
+            },
+          }
         );
         if (response.data.data) {
-          setUser(response.data.data);
+          setUser(response.data.data[0]);
         } else {
           console.log("User not found");
         }
@@ -34,9 +52,12 @@ const Profile = () => {
         console.error("Error fetching user:", error);
       }
     };
+  useEffect(() => {
+    
     fetchUser();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [userId]);
-
+console.log('user :>> ', user);
   const methods = useForm<ProfileSchema>({
     resolver: zodResolver(profileSchema),
     mode: "onChange",
@@ -54,6 +75,7 @@ const Profile = () => {
 
   useEffect(() => {
     if (user) {
+      console.log('user :>> ', user);
       const phoneParts = user.phoneNumber ? user.phoneNumber.split("-") : [];
       methods.reset({
         firstName: user.firstName,
@@ -66,11 +88,11 @@ const Profile = () => {
         },
       });
     }
-  }, [user, methods]);
-
+  }, [methods, user]);
+  
   const onSubmit = async (values: ProfileSchema) => {
     if (!user) return;
-
+    
     const updatedValues = {
       firstName: values.firstName,
       lastName: values.lastName,
@@ -79,7 +101,8 @@ const Profile = () => {
       phoneNumber: `${values.mobileNumber.countryCode}-${values.mobileNumber.number}`,
       password: values.password,
     };
-
+    
+    console.log('user :>> ', user);
     setLoading(true);
     setErrorMessage(null);
 
@@ -95,7 +118,7 @@ const Profile = () => {
           withCredentials: true,
           headers: {
             "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
+            Authorization: `Bearer ${token}`
           },
         }
       );

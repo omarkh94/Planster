@@ -25,8 +25,8 @@ const CreateProject = () => {
   };
 
   const handleCreate = async (event: React.FormEvent) => {
-    event.preventDefault(); 
-    const token = localStorage.getItem("authToken"); 
+    event.preventDefault();
+    const token = localStorage.getItem("authToken");
 
     if (!token) {
       console.error("No authentication token found.");
@@ -41,12 +41,12 @@ const CreateProject = () => {
       };
 
       const response = await axios.post<ProjectType>(
-        `${import.meta.env.VITE_APP_API_URL}/projects/new`, 
+        `${import.meta.env.VITE_APP_API_URL}/projects/new`,
         newProject,
         {
           headers: {
             "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`, 
+            Authorization: `Bearer ${token}`,
           },
         }
       );
@@ -109,18 +109,18 @@ const CreateProject = () => {
           </div>
           <div className="flex flex-row gap-2 items-end justify-end w-full">
             <button
-              autoFocus
-              onClick={handleClose}
-              className="bg-lightError border border-border px-6 py-2 text-white font-semibold"
-            >
-              Cancel
-            </button>
-            <button
               className="bg-primary border border-border px-6 py-2 text-white font-semibold"
               type="submit"
               autoFocus
             >
               Create
+            </button>
+            <button
+              autoFocus
+              onClick={handleClose}
+              className="bg-lightError border border-border px-6 py-2 text-white font-semibold"
+            >
+              Cancel
             </button>
           </div>
         </form>

@@ -113,7 +113,7 @@ const InviteTeamMember = ({
           disabled={loading}
           autoFocus
         >
-          {loading ? "Sending..." : "Invite"}
+          {loading ? "Sending..." : "Add Member"}
         </button>
       </div>
     </ModalWithChildren>

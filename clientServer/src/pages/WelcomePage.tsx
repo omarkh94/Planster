@@ -2,6 +2,7 @@ import { useUser } from "@/store/UserStore";
 
 const WelcomePage = () => {
     const {  setDialogOpen  } = useUser();
+    const { isLoggedIn } = useUser();
   return (
     <div className="flex flex-col items-center justify-center p-6">
       <h1 className="drop-shadow-xl text-4xl font-bold text-primary/80 p-3 bg-secondary rounded-lg text-center w-full max-w-3xl">
@@ -33,14 +34,14 @@ const WelcomePage = () => {
         </p>
       </div>
 
-      <button
+      { isLoggedIn && <button
         className=" drop-shadow-xl mt-6 text-2xl font-bold text-primary bg-secondary p-3 rounded-lg hover:bg-primary hover:text-secondary transition-all shadow-md"
         onClick={() => {
             setDialogOpen(true);
           }}
       >
         🎯 Let's Do It!
-      </button>
+      </button>}
     </div>
   );
 };

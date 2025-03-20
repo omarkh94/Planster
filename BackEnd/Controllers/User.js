@@ -90,6 +90,24 @@ const login = async (req, res) => {
     }
 }
 
+const getUserById = async (req, res) => {
+    try {
+        const { userId } = req.params;
+        console.log('userId :>> ', userId);
+        const users = await usersModel.find({ _id: userId, isDeleted: false });
+        res.status(200).json({
+            success: true,
+            message: ' users retrieved successfully',
+            data: users
+        });
+        console.log('users :>> ', users);
+    } catch (error) {
+        res.status(500).json({
+            success: false,
+            message: error.message,
+        });
+    }
+};
 const getTeammates = async (req, res) => {
     try {
         const { teamId } = req.params;
@@ -245,7 +263,7 @@ module.exports = {
     register, login,
     getUsersAreNotInThisProject, modifyProfile,
     deleteProfile, addUserToTeam,
-    getUsersAreNotInThisProject
+    getUsersAreNotInThisProject, getUserById
 };
 
 

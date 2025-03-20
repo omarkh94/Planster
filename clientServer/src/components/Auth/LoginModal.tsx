@@ -131,6 +131,18 @@ const LoginModal = () => {
               {/* Third row */}
               <div className="flex flex-col md:flex-row gap-4 justify-between items-center ">
               <button
+                  className="flex flex-row gap-2 items-center bg-primary border border-border px-4 py-2 text-white font-semibold"
+                  type="submit"
+                  disabled={loading}
+                  autoFocus
+                >
+                  <Send
+                    className="h-4 w-4 mr-2 text-secondary"
+                    strokeWidth={3}
+                  />
+                  {loading ? <Loader/> : "Confirm"}
+                </button>
+              <button
                   onClick={() => {
                     setLoginModalOpen(false);
                     setForgottenPassOpen(true);
@@ -143,18 +155,7 @@ const LoginModal = () => {
                   />
                   Reset Your Password?
                 </button>
-                <button
-                  className="flex flex-row gap-2 items-center bg-primary border border-border px-4 py-2 text-white font-semibold"
-                  type="submit"
-                  disabled={loading}
-                  autoFocus
-                >
-                  <Send
-                    className="h-4 w-4 mr-2 text-secondary"
-                    strokeWidth={3}
-                  />
-                  {loading ? <Loader/> : "Confirm"}
-                </button>
+                
                 </div>
              
             </form>
